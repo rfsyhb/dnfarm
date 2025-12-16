@@ -1,4 +1,5 @@
 # dnfarm, a farming helper for sensodeyn team
+Berangkat dari masalah internal yang malas menulis berulang menggunakan excel/spreadsheet, maka dibuatlah alat bantu yang lebih cepat dan ringkas hehehe.
 
 ### knowledge
 - slice(0, -1) returns all elements from the start up to (but not including) the last element.
