@@ -12,8 +12,8 @@ export const farmData = {
     defaultGoldEarned: 20,
   },
   'East Ancient Armory': {
-    runDuration: 34,
-    defaultGoldEarned: 20,
+    runDuration: 25,
+    defaultGoldEarned: 22,
   },
   'West Ancient Armory': {
     runDuration: 27,
