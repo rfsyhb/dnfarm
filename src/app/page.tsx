@@ -18,9 +18,30 @@ type Dungeon =
   | 'East Ancient Armory'
   | 'West Ancient Armory';
 
+type InvaderName = (typeof invaderData)[number]['name'];
+type AdditionalName = (typeof additionalItems)[number]['name'];
+
 export default function Home() {
   const [rows, setRows] = useState<Row[]>([]);
   const [selectedDungeon, setSelectedDungeon] = useState<Dungeon>();
+  const [invaderCounts, setInvaderCounts] = useState<
+    Record<InvaderName, number>
+  >(
+    () =>
+      Object.fromEntries(invaderData.map((i) => [i.name, 0])) as Record<
+        InvaderName,
+        number
+      >
+  );
+  const [additionalCounts, setAdditionalCounts] = useState<
+    Record<AdditionalName, number>
+  >(
+    () =>
+      Object.fromEntries(additionalItems.map((i) => [i.name, 0])) as Record<
+        AdditionalName,
+        number
+      >
+  );
 
   const selectedFarmData = selectedDungeon ? farmData[selectedDungeon] : null;
   const DEFAULT_ROW: Row = {
@@ -32,8 +53,19 @@ export default function Home() {
     totalMinute: 0,
   };
 
+  const latestRow = rows[rows.length - 1] ? rows[rows.length - 1].no : 'none';
+
   const addRow = () => setRows((prev) => [...prev, { ...DEFAULT_ROW }]);
   const removeRow = () => setRows((prev) => prev.slice(0, -1));
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    alert(`latest row is ${JSON.stringify(latestRow)}`);
+  };
+
+  const handleReset = () => {
+    alert('resetting');
+  };
 
   return (
     <div className="w-full min-h-screen flex flex-col items-center justify-center p-8">
@@ -161,9 +193,17 @@ export default function Home() {
                         >
                           <input
                             type="number"
+                            min={0}
                             className="w-full text-center"
                             disabled={rows.length === 0}
                             placeholder={rows.length === 0 ? 'n/a' : '0'}
+                            value={invaderCounts[name]}
+                            onChange={(e) =>
+                              setInvaderCounts((prev) => ({
+                                ...prev,
+                                [name]: Number(e.target.value),
+                              }))
+                            }
                           />
                         </td>
                       ))}
@@ -212,6 +252,13 @@ export default function Home() {
                             className="w-full text-center"
                             disabled={rows.length === 0}
                             placeholder={rows.length === 0 ? 'n/a' : '0'}
+                            value={additionalCounts[item.name]}
+                            onChange={(e) =>
+                              setAdditionalCounts((prev) => ({
+                                ...prev,
+                                [item.name]: Number(e.target.value),
+                              }))
+                            }
                           />
                         </td>
                       </tr>
@@ -229,6 +276,7 @@ export default function Home() {
                       : 'cursor-pointer'
                   }`}
                   disabled={!rows.length}
+                  onClick={handleSubmit}
                 >
                   Submit
                 </button>
@@ -240,7 +288,7 @@ export default function Home() {
                       : 'cursor-pointer'
                   }`}
                   disabled={!rows.length}
-                  onClick={() => alert('woi')}
+                  onClick={handleReset}
                 >
                   Reset
                 </button>
