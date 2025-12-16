@@ -58,7 +58,54 @@ export default function Home() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    alert(`latest row is ${JSON.stringify(latestRow)}`);
+    const latestRow = rows[rows.length - 1];
+    if (!latestRow) return;
+
+    // input data and calculate total
+    const additionalGold = Object.entries(additionalCounts).reduce(
+      (sum, [name, count]) => {
+        const item = additionalItems.find((i) => i.name === name); // find item data
+        return sum + (item ? item.price * count : 0);
+      },
+      0
+    );
+    const additionalMinute = Object.entries(invaderCounts).reduce(
+      (sum, [name, count]) => {
+        const invader = invaderData.find((i) => i.name === name); // find invader data
+        return sum + (invader ? invader.duration * count : 0);
+      },
+      0
+    );
+
+    const totalGold = selectedFarmData!.defaultGoldEarned + additionalGold;
+    const totalMinute = selectedFarmData!.runDuration + additionalMinute;
+
+    // update latest row
+    setRows((prev) => {
+      const newRows = [...prev];
+      newRows[newRows.length - 1] = {
+        ...latestRow,
+        additionalGold,
+        additionalMinute,
+        totalGold,
+        totalMinute,
+      };
+      return newRows;
+    });
+
+    // reset input fields
+    setInvaderCounts(
+      Object.fromEntries(invaderData.map((i) => [i.name, 0])) as Record<
+        InvaderName,
+        number
+      >
+    );
+    setAdditionalCounts(
+      Object.fromEntries(additionalItems.map((i) => [i.name, 0])) as Record<
+        AdditionalName,
+        number
+      >
+    );
   };
 
   const handleReset = () => {
