@@ -280,16 +280,24 @@ export default function Home() {
                     <td className="border px-2 text-right">{totalRuns}</td>
                   </tr>
                   <tr>
-                    <th className="border px-2 text-left">Total Gold Earned</th>
-                    <td className="border px-2 text-right">{totalGoldEarned}</td>
+                    <th className="border px-2 text-left">Gold Earned</th>
+                    <td className="border px-2 text-right">
+                      {totalGoldEarned}
+                    </td>
                   </tr>
                   <tr>
-                    <th className="border px-2 text-left">Total Time Spent (menit)</th>
+                    <th className="border px-2 text-left">
+                      Time Spent (min)
+                    </th>
                     <td className="border px-2 text-right">{totalTimeSpent}</td>
                   </tr>
                   <tr>
-                    <th className="border px-2 text-left">Total Rupiah Earned</th>
-                    <td className="border px-2 text-right">{totalRupiahEarned}</td>
+                    <th className="border px-2 text-left">
+                      Rupiah Rate
+                    </th>
+                    <td className="border px-2 text-right">
+                      {totalRupiahEarned}
+                    </td>
                   </tr>
                 </tbody>
               </table>
@@ -297,7 +305,8 @@ export default function Home() {
 
             {selectedFarmData ? (
               <p className="text-sm opacity-70 mt-2">
-                Base: {selectedFarmData.defaultGoldEarned} gold / {selectedFarmData.runDuration} menit
+                Base: {selectedFarmData.defaultGoldEarned} gold /{' '}
+                {selectedFarmData.runDuration} menit
               </p>
             ) : (
               <p className="text-xs opacity-70 mt-2">
