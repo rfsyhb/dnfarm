@@ -1,5 +1,5 @@
 'use client';
-import { farmData } from '@/lib/data';
+import { additionalItems, farmData, invaderData } from '@/lib/data';
 import { useState } from 'react';
 
 type Row = {
@@ -64,7 +64,7 @@ export default function Home() {
         {/* table and configuration */}
         <div className="flex flex-row gap-2 w-full">
           <div className="h-120 w-full flex-3 overflow-y-auto border">
-            <table className="w-full border">
+            <table className={`w-full ${rows.length ? '' : 'h-full'} border`}>
               <thead className="sticky top-0 bg-background">
                 <tr>
                   {[
@@ -85,20 +85,133 @@ export default function Home() {
                 </tr>
               </thead>
               <tbody className="overflow-y-auto">
-                {rows.map((row) => (
-                  <tr key={row.no}>
-                    <td className="border px-2 py-1">{row.no}</td>
-                    <td className="border px-2 py-1">{row.menit}</td>
-                    <td className="border px-2 py-1">{row.additionalGold}</td>
-                    <td className="border px-2 py-1">{row.additionalMinute}</td>
-                    <td className="border px-2 py-1">{row.totalGold}</td>
-                    <td className="border px-2 py-1">{row.totalMinute}</td>
+                {rows.length ? (
+                  rows.map((row) => (
+                    <tr key={row.no}>
+                      <td className="border px-2 py-1">{row.no}</td>
+                      <td className="border px-2 py-1">{row.menit}</td>
+                      <td className="border px-2 py-1">{row.additionalGold}</td>
+                      <td className="border px-2 py-1">
+                        {row.additionalMinute}
+                      </td>
+                      <td className="border px-2 py-1">{row.totalGold}</td>
+                      <td className="border px-2 py-1">{row.totalMinute}</td>
+                    </tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td
+                      colSpan={6}
+                      className="border px-2 py-1 text-center min-h-full"
+                    >
+                      No rows
+                    </td>
                   </tr>
-                ))}
+                )}
               </tbody>
             </table>
           </div>
-          <div className="flex-1">configure</div>
+          <div className="flex-1">
+            <form>
+              <section aria-labelledby="invader">
+                <p id="invader">Invader thingy</p>
+                <table className="w-full table-fixed">
+                  <colgroup>
+                    <col className="w-1/2" />
+                    <col className="w-1/2" />
+                  </colgroup>
+                  <thead>
+                    <tr>
+                      {invaderData.map(({ name }) => (
+                        <th
+                          key={name}
+                          className="border px-2 py-1 text-left"
+                        >
+                          {name}
+                        </th>
+                      ))}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      {invaderData.map(({ name }) => (
+                        <td
+                          key={name}
+                          className="border"
+                        >
+                          <input
+                            type="number"
+                            className="w-full text-center"
+                          />
+                        </td>
+                      ))}
+                    </tr>
+                  </tbody>
+                </table>
+              </section>
+
+              <section aria-labelledby="additional">
+                <p id="additional">Additional stuff</p>
+                <table className="w-full table-fixed">
+                  <colgroup>
+                    <col className="w-1/2" />
+                    <col className="w-1/2" />
+                  </colgroup>
+                  <thead>
+                    <tr>
+                      <th
+                        className="border px-2 py-1"
+                        scope="col"
+                      >
+                        Item
+                      </th>
+                      <th
+                        className="border px-2 py-1"
+                        scope="col"
+                      >
+                        Qty
+                      </th>
+                    </tr>
+                  </thead>
+
+                  <tbody>
+                    {additionalItems.map((item) => (
+                      <tr key={item.name}>
+                        <th
+                          className="border text-left px-2"
+                          scope="row"
+                        >
+                          {item.name}
+                        </th>
+                        <td className="border">
+                          <input
+                            type="number"
+                            min={0}
+                            className="w-full text-center"
+                          />
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </section>
+
+              <div className="w-full flex flex-row items-center justify-center gap-2 mt-4">
+                <button
+                  type="submit"
+                  className="px-2 py-1 border rounded-md bg-green-900 text-white cursor-pointer"
+                >
+                  Submit
+                </button>
+                <button
+                  type="button"
+                  className="px-2 py-1 border rounded-md bg-red-900 text-white cursor-pointer"
+                >
+                  Reset
+                </button>
+              </div>
+            </form>
+          </div>
         </div>
       </div>
       {/* footer */}

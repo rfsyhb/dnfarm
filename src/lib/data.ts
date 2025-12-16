@@ -23,7 +23,14 @@ export const farmData = {
 
 export const goldRate = 9200; // rupiah per 100 gold
 
-export const invaderData = {
-  Gawyn: 2.5,
-  Kanna: 4,
-};
+export const invaderData = [
+  { name: 'Gawyn', duration: 2.5 },
+  { name: 'Kanna', duration: 4 },
+];
+
+export const additionalItems = [
+  { name: 'Ordinary Diamond', price: 6 },
+  { name: 'Polished Diamond', price: 3 },
+  { name: 'Essence of Life', price: 5 },
+  { name: 'Card Box', price: 20 },
+];
