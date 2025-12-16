@@ -9,6 +9,7 @@ type Row = {
   additionalMinute: number;
   totalGold: number;
   totalMinute: number;
+  createdAt: string;
 };
 
 type Dungeon =
@@ -73,6 +74,7 @@ export const useDnFarmStore = create<DnFarmState>()(
           additionalMinute: 0,
           totalGold: 0,
           totalMinute: 0,
+          createdAt: new Date().toISOString(),
         };
 
         set({ rows: [...rows, newRow] });

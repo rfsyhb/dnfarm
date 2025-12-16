@@ -46,6 +46,11 @@ export default function Home() {
   const totalTimeSpent = rows.reduce((sum, row) => sum + row.totalMinute, 0);
   const totalRupiahEarned = Math.round((totalGoldEarned / 100) * goldRate);
 
+  const getDateString = (isoString: string) => {
+    const date = new Date(isoString);
+    return date.toLocaleString();
+  };
+
   return (
     <div className="w-full min-h-screen flex flex-col items-center justify-center p-8">
       {/* header */}
@@ -100,11 +105,12 @@ export default function Home() {
                 <tr>
                   {[
                     'No',
-                    'Menit',
+                    'Base Minute',
                     'Additional Gold',
                     'Additional Minute',
                     'Total Gold',
                     'Total Minute',
+                    'Created At',
                   ].map((header) => (
                     <th
                       key={header}
@@ -127,12 +133,15 @@ export default function Home() {
                       </td>
                       <td className="border px-2 py-1">{row.totalGold}</td>
                       <td className="border px-2 py-1">{row.totalMinute}</td>
+                      <td className="border px-2 py-1">
+                        {getDateString(row.createdAt)}
+                      </td>
                     </tr>
                   ))
                 ) : (
                   <tr>
                     <td
-                      colSpan={6}
+                      colSpan={7}
                       className="border px-2 py-1 text-center min-h-full"
                     >
                       No rows
@@ -254,7 +263,7 @@ export default function Home() {
                   disabled={!rows.length}
                   onClick={handleSubmit}
                 >
-                  Submit
+                  Submit Latest Row Data
                 </button>
                 <button
                   type="button"
@@ -286,15 +295,11 @@ export default function Home() {
                     </td>
                   </tr>
                   <tr>
-                    <th className="border px-2 text-left">
-                      Time Spent (min)
-                    </th>
+                    <th className="border px-2 text-left">Time Spent (min)</th>
                     <td className="border px-2 text-right">{totalTimeSpent}</td>
                   </tr>
                   <tr>
-                    <th className="border px-2 text-left">
-                      Rupiah Rate
-                    </th>
+                    <th className="border px-2 text-left">Rupiah Rate</th>
                     <td className="border px-2 text-right">
                       {totalRupiahEarned}
                     </td>
