@@ -1,5 +1,5 @@
 'use client';
-import { additionalItems, farmData, invaderData } from '@/lib/data';
+import { additionalItems, farmData, goldRate, invaderData } from '@/lib/data';
 import { useState } from 'react';
 
 type Row = {
@@ -117,6 +117,29 @@ export default function Home() {
     latestRow && (latestRow.totalMinute === 0 || latestRow.totalGold === 0);
   const isDungeonSelected = Boolean(selectedDungeon);
   const isValidToAddRow = isDungeonSelected && !isLatestRowNotSubmitted;
+
+  type finalData = {
+    totalRuns: number;
+    totalGoldEarned: number;
+    totalTimeSpent: number;
+    totalRupiahEarned: number;
+  };
+
+  const computeFinalData = (): finalData => {
+    const totalRuns = rows.length;
+    const totalGoldEarned = rows.reduce((sum, row) => sum + row.totalGold, 0);
+    const totalTimeSpent = rows.reduce((sum, row) => sum + row.totalMinute, 0);
+    const totalRupiahEarned = Math.round((totalGoldEarned / 100) * goldRate);
+
+    return {
+      totalRuns,
+      totalGoldEarned,
+      totalTimeSpent,
+      totalRupiahEarned,
+    };
+  };
+
+  const finalData = computeFinalData();
 
   return (
     <div className="w-full min-h-screen flex flex-col items-center justify-center p-8">
@@ -345,6 +368,62 @@ export default function Home() {
                 </button>
               </div>
             </form>
+
+            <div>
+              <h2 className="font-bold mt-4">Final Data</h2>
+              <table className="table-fixed w-full">
+                <colgroup>
+                  <col className="w-1/2" />
+                  <col className="w-1/2" />
+                </colgroup>
+                <tbody>
+                  <tr>
+                    <th
+                      scope="row"
+                      className="border px-2 text-left"
+                    >
+                      Total Run
+                    </th>
+                    <td className="border px-2 text-right">
+                      {finalData.totalRuns}
+                    </td>
+                  </tr>
+                  <tr>
+                    <th
+                      scope="row"
+                      className="border px-2 text-left"
+                    >
+                      Total Gold Earned
+                    </th>
+                    <td className="border px-2 text-right">
+                      {finalData.totalGoldEarned}
+                    </td>
+                  </tr>
+                  <tr>
+                    <th
+                      scope="row"
+                      className="border px-2 text-left"
+                    >
+                      Total Time Spent (menit)
+                    </th>
+                    <td className="border px-2 text-right">
+                      {finalData.totalTimeSpent}
+                    </td>
+                  </tr>
+                  <tr>
+                    <th
+                      scope="row"
+                      className="border px-2 text-left"
+                    >
+                      Total Rupiah Earned
+                    </th>
+                    <td className="border px-2 text-right">
+                      {finalData.totalRupiahEarned}
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
           </div>
         </div>
       </div>
