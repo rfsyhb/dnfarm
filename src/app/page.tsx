@@ -1,15 +1,6 @@
 'use client';
 import { additionalItems, farmData, goldRate, invaderData } from '@/lib/data';
-import { useState } from 'react';
-
-type Row = {
-  no: number;
-  menit: number;
-  additionalGold: number;
-  additionalMinute: number;
-  totalGold: number;
-  totalMinute: number;
-};
+import { useDnFarmStore } from '@/store/dnfarm.store';
 
 type Dungeon =
   | 'Riverwort Village Ruins'
@@ -18,128 +9,42 @@ type Dungeon =
   | 'East Ancient Armory'
   | 'West Ancient Armory';
 
-type InvaderName = (typeof invaderData)[number]['name'];
-type AdditionalName = (typeof additionalItems)[number]['name'];
-
 export default function Home() {
-  const [rows, setRows] = useState<Row[]>([]);
-  const [selectedDungeon, setSelectedDungeon] = useState<Dungeon>();
-  const [invaderCounts, setInvaderCounts] = useState<
-    Record<InvaderName, number>
-  >(
-    () =>
-      Object.fromEntries(invaderData.map((i) => [i.name, 0])) as Record<
-        InvaderName,
-        number
-      >
-  );
-  const [additionalCounts, setAdditionalCounts] = useState<
-    Record<AdditionalName, number>
-  >(
-    () =>
-      Object.fromEntries(additionalItems.map((i) => [i.name, 0])) as Record<
-        AdditionalName,
-        number
-      >
-  );
+  const rows = useDnFarmStore((s) => s.rows);
+  const selectedDungeon = useDnFarmStore((s) => s.selectedDungeon);
+  const invaderCounts = useDnFarmStore((s) => s.invaderCounts);
+  const additionalCounts = useDnFarmStore((s) => s.additionalCounts);
+
+  const setDungeon = useDnFarmStore((s) => s.setDungeon);
+  const addRow = useDnFarmStore((s) => s.addRow);
+  const removeRow = useDnFarmStore((s) => s.removeRow);
+  const setInvaderCount = useDnFarmStore((s) => s.setInvaderCount);
+  const setAdditionalCount = useDnFarmStore((s) => s.setAdditionalCount);
+  const submitLatestRow = useDnFarmStore((s) => s.submitLatestRow);
+  const resetAll = useDnFarmStore((s) => s.resetAll);
 
   const selectedFarmData = selectedDungeon ? farmData[selectedDungeon] : null;
-  const DEFAULT_ROW: Row = {
-    no: rows.length + 1,
-    menit: selectedFarmData ? selectedFarmData.runDuration : 0,
-    additionalGold: 0,
-    additionalMinute: 0,
-    totalGold: 0,
-    totalMinute: 0,
-  };
 
-  const addRow = () => setRows((prev) => [...prev, { ...DEFAULT_ROW }]);
-  const removeRow = () => setRows((prev) => prev.slice(0, -1));
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    const latestRow = rows[rows.length - 1];
-    if (!latestRow) return;
-
-    // input data and calculate total
-    const additionalGold = Object.entries(additionalCounts).reduce(
-      (sum, [name, count]) => {
-        const item = additionalItems.find((i) => i.name === name); // find item data
-        return sum + (item ? item.price * count : 0);
-      },
-      0
-    );
-    const additionalMinute = Object.entries(invaderCounts).reduce(
-      (sum, [name, count]) => {
-        const invader = invaderData.find((i) => i.name === name); // find invader data
-        return sum + (invader ? invader.duration * count : 0);
-      },
-      0
-    );
-
-    const totalGold = selectedFarmData!.defaultGoldEarned + additionalGold;
-    const totalMinute = selectedFarmData!.runDuration + additionalMinute;
-
-    // update latest row
-    setRows((prev) => {
-      const newRows = [...prev];
-      newRows[newRows.length - 1] = {
-        ...latestRow,
-        additionalGold,
-        additionalMinute,
-        totalGold,
-        totalMinute,
-      };
-      return newRows;
-    });
-
-    // reset input fields
-    setInvaderCounts(
-      Object.fromEntries(invaderData.map((i) => [i.name, 0])) as Record<
-        InvaderName,
-        number
-      >
-    );
-    setAdditionalCounts(
-      Object.fromEntries(additionalItems.map((i) => [i.name, 0])) as Record<
-        AdditionalName,
-        number
-      >
-    );
-  };
-
-  const handleReset = () => {
-    alert('resetting');
-  };
-
-  const latestRow = rows[rows.length - 1] ? rows[rows.length - 1] : null;
+  const latestRow = rows[rows.length - 1] ?? null;
   const isLatestRowNotSubmitted =
     latestRow && (latestRow.totalMinute === 0 || latestRow.totalGold === 0);
   const isDungeonSelected = Boolean(selectedDungeon);
   const isValidToAddRow = isDungeonSelected && !isLatestRowNotSubmitted;
 
-  type finalData = {
-    totalRuns: number;
-    totalGoldEarned: number;
-    totalTimeSpent: number;
-    totalRupiahEarned: number;
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    submitLatestRow();
   };
 
-  const computeFinalData = (): finalData => {
-    const totalRuns = rows.length;
-    const totalGoldEarned = rows.reduce((sum, row) => sum + row.totalGold, 0);
-    const totalTimeSpent = rows.reduce((sum, row) => sum + row.totalMinute, 0);
-    const totalRupiahEarned = Math.round((totalGoldEarned / 100) * goldRate);
-
-    return {
-      totalRuns,
-      totalGoldEarned,
-      totalTimeSpent,
-      totalRupiahEarned,
-    };
+  const handleReset = () => {
+    resetAll();
+    // kalau mau sekalian hapus storage: useDnFarmStore.persist.clearStorage();
   };
 
-  const finalData = computeFinalData();
+  const totalRuns = rows.length;
+  const totalGoldEarned = rows.reduce((sum, row) => sum + row.totalGold, 0);
+  const totalTimeSpent = rows.reduce((sum, row) => sum + row.totalMinute, 0);
+  const totalRupiahEarned = Math.round((totalGoldEarned / 100) * goldRate);
 
   return (
     <div className="w-full min-h-screen flex flex-col items-center justify-center p-8">
@@ -148,7 +53,7 @@ export default function Home() {
         <h1 className="text-xl font-bold">dnFarm helper</h1>
         <select
           value={selectedDungeon}
-          onChange={(e) => setSelectedDungeon(e.target.value as Dungeon)}
+          onChange={(e) => setDungeon((e.target.value || undefined) as Dungeon)}
           className="bg-background"
         >
           <option value="">Select a dungeon</option>
@@ -189,7 +94,7 @@ export default function Home() {
         </div>
         {/* table and configuration */}
         <div className="flex flex-row gap-2 w-full">
-          <div className="h-120 w-full flex-3 overflow-y-auto border">
+          <div className="h-130 w-full flex-3 overflow-y-auto border">
             <table className={`w-full ${rows.length ? '' : 'h-full'} border`}>
               <thead className="sticky top-0 bg-background">
                 <tr>
@@ -273,10 +178,7 @@ export default function Home() {
                             placeholder={rows.length === 0 ? 'n/a' : '0'}
                             value={invaderCounts[name]}
                             onChange={(e) =>
-                              setInvaderCounts((prev) => ({
-                                ...prev,
-                                [name]: Number(e.target.value),
-                              }))
+                              setInvaderCount(name, Number(e.target.value))
                             }
                           />
                         </td>
@@ -328,10 +230,10 @@ export default function Home() {
                             placeholder={rows.length === 0 ? 'n/a' : '0'}
                             value={additionalCounts[item.name]}
                             onChange={(e) =>
-                              setAdditionalCounts((prev) => ({
-                                ...prev,
-                                [item.name]: Number(e.target.value),
-                              }))
+                              setAdditionalCount(
+                                item.name,
+                                Number(e.target.value)
+                              )
                             }
                           />
                         </td>
@@ -372,58 +274,36 @@ export default function Home() {
             <div>
               <h2 className="font-bold mt-4">Final Data</h2>
               <table className="table-fixed w-full">
-                <colgroup>
-                  <col className="w-1/2" />
-                  <col className="w-1/2" />
-                </colgroup>
                 <tbody>
                   <tr>
-                    <th
-                      scope="row"
-                      className="border px-2 text-left"
-                    >
-                      Total Run
-                    </th>
-                    <td className="border px-2 text-right">
-                      {finalData.totalRuns}
-                    </td>
+                    <th className="border px-2 text-left">Total Run</th>
+                    <td className="border px-2 text-right">{totalRuns}</td>
                   </tr>
                   <tr>
-                    <th
-                      scope="row"
-                      className="border px-2 text-left"
-                    >
-                      Total Gold Earned
-                    </th>
-                    <td className="border px-2 text-right">
-                      {finalData.totalGoldEarned}
-                    </td>
+                    <th className="border px-2 text-left">Total Gold Earned</th>
+                    <td className="border px-2 text-right">{totalGoldEarned}</td>
                   </tr>
                   <tr>
-                    <th
-                      scope="row"
-                      className="border px-2 text-left"
-                    >
-                      Total Time Spent (menit)
-                    </th>
-                    <td className="border px-2 text-right">
-                      {finalData.totalTimeSpent}
-                    </td>
+                    <th className="border px-2 text-left">Total Time Spent (menit)</th>
+                    <td className="border px-2 text-right">{totalTimeSpent}</td>
                   </tr>
                   <tr>
-                    <th
-                      scope="row"
-                      className="border px-2 text-left"
-                    >
-                      Total Rupiah Earned
-                    </th>
-                    <td className="border px-2 text-right">
-                      {finalData.totalRupiahEarned}
-                    </td>
+                    <th className="border px-2 text-left">Total Rupiah Earned</th>
+                    <td className="border px-2 text-right">{totalRupiahEarned}</td>
                   </tr>
                 </tbody>
               </table>
             </div>
+
+            {selectedFarmData ? (
+              <p className="text-sm opacity-70 mt-2">
+                Base: {selectedFarmData.defaultGoldEarned} gold / {selectedFarmData.runDuration} menit
+              </p>
+            ) : (
+              <p className="text-xs opacity-70 mt-2">
+                select a dungeon to see base data.
+              </p>
+            )}
           </div>
         </div>
       </div>

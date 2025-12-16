@@ -20,6 +20,9 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "dnFarm",
   description: "sensodeyn's farm management app",
+  icons: {
+    icon: "/okeey.jpg",
+  }
 };
 
 export default function RootLayout({
