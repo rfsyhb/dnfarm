@@ -53,8 +53,6 @@ export default function Home() {
     totalMinute: 0,
   };
 
-  const latestRow = rows[rows.length - 1] ? rows[rows.length - 1].no : 'none';
-
   const addRow = () => setRows((prev) => [...prev, { ...DEFAULT_ROW }]);
   const removeRow = () => setRows((prev) => prev.slice(0, -1));
 
@@ -66,6 +64,12 @@ export default function Home() {
   const handleReset = () => {
     alert('resetting');
   };
+
+  const latestRow = rows[rows.length - 1] ? rows[rows.length - 1] : null;
+  const isLatestRowNotSubmitted =
+    latestRow && (latestRow.totalMinute === 0 || latestRow.totalGold === 0);
+  const isDungeonSelected = Boolean(selectedDungeon);
+  const isValidToAddRow = isDungeonSelected && !isLatestRowNotSubmitted;
 
   return (
     <div className="w-full min-h-screen flex flex-col items-center justify-center p-8">
@@ -94,11 +98,11 @@ export default function Home() {
             type="button"
             onClick={addRow}
             className={`${
-              !selectedDungeon
+              !isValidToAddRow
                 ? 'opacity-50 cursor-not-allowed'
                 : 'cursor-pointer'
             }`}
-            disabled={!selectedDungeon}
+            disabled={!isValidToAddRow}
           >
             Add Row
           </button>
