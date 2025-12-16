@@ -56,45 +56,50 @@ export default function Home() {
         </select>
       </div>
       {/* content */}
-      <div className="w-full max-h-140 overflow-y-auto">
+      <div className="w-full">
         <div className="flex flex-row gap-2">
           <button onClick={addRow}>Add Row</button>
           <button onClick={removeRow}>Remove Row</button>
         </div>
-        <table className="w-full border">
-          <thead>
-            <tr>
-              {[
-                'No',
-                'Menit',
-                'Additional Gold',
-                'Additional Minute',
-                'Total Gold',
-                'Total Minute',
-              ].map((header) => (
-                <th
-                  key={header}
-                  className="border px-2 py-1 text-left"
-                >
-                  {header}
-                </th>
-              ))}
-            </tr>
-          </thead>
-
-          <tbody>
-            {rows.map((row) => (
-              <tr key={row.no}>
-                <td className="border px-2 py-1">{row.no}</td>
-                <td className="border px-2 py-1">{row.menit}</td>
-                <td className="border px-2 py-1">{row.additionalGold}</td>
-                <td className="border px-2 py-1">{row.additionalMinute}</td>
-                <td className="border px-2 py-1">{row.totalGold}</td>
-                <td className="border px-2 py-1">{row.totalMinute}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+        {/* table and configuration */}
+        <div className="flex flex-row gap-2 w-full">
+          <div className="h-120 w-full flex-3 overflow-y-auto border">
+            <table className="w-full border">
+              <thead className="sticky top-0 bg-background">
+                <tr>
+                  {[
+                    'No',
+                    'Menit',
+                    'Additional Gold',
+                    'Additional Minute',
+                    'Total Gold',
+                    'Total Minute',
+                  ].map((header) => (
+                    <th
+                      key={header}
+                      className="border px-2 py-1 text-left"
+                    >
+                      {header}
+                    </th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody className="overflow-y-auto">
+                {rows.map((row) => (
+                  <tr key={row.no}>
+                    <td className="border px-2 py-1">{row.no}</td>
+                    <td className="border px-2 py-1">{row.menit}</td>
+                    <td className="border px-2 py-1">{row.additionalGold}</td>
+                    <td className="border px-2 py-1">{row.additionalMinute}</td>
+                    <td className="border px-2 py-1">{row.totalGold}</td>
+                    <td className="border px-2 py-1">{row.totalMinute}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          <div className="flex-1">configure</div>
+        </div>
       </div>
       {/* footer */}
     </div>
