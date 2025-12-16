@@ -58,8 +58,28 @@ export default function Home() {
       {/* content */}
       <div className="w-full">
         <div className="flex flex-row gap-2">
-          <button onClick={addRow}>Add Row</button>
-          <button onClick={removeRow}>Remove Row</button>
+          <button
+            type="button"
+            onClick={addRow}
+            className={`${
+              !selectedDungeon
+                ? 'opacity-50 cursor-not-allowed'
+                : 'cursor-pointer'
+            }`}
+            disabled={!selectedDungeon}
+          >
+            Add Row
+          </button>
+          <button
+            type="button"
+            onClick={removeRow}
+            className={`${
+              !rows.length ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'
+            }`}
+            disabled={!rows.length}
+          >
+            Remove Row
+          </button>
         </div>
         {/* table and configuration */}
         <div className="flex flex-row gap-2 w-full">
@@ -142,6 +162,8 @@ export default function Home() {
                           <input
                             type="number"
                             className="w-full text-center"
+                            disabled={rows.length === 0}
+                            placeholder={rows.length === 0 ? 'n/a' : '0'}
                           />
                         </td>
                       ))}
@@ -169,7 +191,7 @@ export default function Home() {
                         className="border px-2 py-1"
                         scope="col"
                       >
-                        Qty
+                        Quantity
                       </th>
                     </tr>
                   </thead>
@@ -188,6 +210,8 @@ export default function Home() {
                             type="number"
                             min={0}
                             className="w-full text-center"
+                            disabled={rows.length === 0}
+                            placeholder={rows.length === 0 ? 'n/a' : '0'}
                           />
                         </td>
                       </tr>
@@ -199,13 +223,24 @@ export default function Home() {
               <div className="w-full flex flex-row items-center justify-center gap-2 mt-4">
                 <button
                   type="submit"
-                  className="px-2 py-1 border rounded-md bg-green-900 text-white cursor-pointer"
+                  className={`px-2 py-1 border rounded-md bg-green-900 text-white ${
+                    !rows.length
+                      ? 'opacity-50 cursor-not-allowed'
+                      : 'cursor-pointer'
+                  }`}
+                  disabled={!rows.length}
                 >
                   Submit
                 </button>
                 <button
                   type="button"
-                  className="px-2 py-1 border rounded-md bg-red-900 text-white cursor-pointer"
+                  className={`px-2 py-1 border rounded-md bg-red-900 text-white ${
+                    !rows.length
+                      ? 'opacity-50 cursor-not-allowed'
+                      : 'cursor-pointer'
+                  }`}
+                  disabled={!rows.length}
+                  onClick={() => alert('woi')}
                 >
                   Reset
                 </button>
