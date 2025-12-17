@@ -22,10 +22,13 @@ left join lateral (
 revoke all on public.v_items_price_stale from anon, authenticated;
 
 create view public.latest_item_prices with (security_invoker = on) as
-select distinct on (item_code)
-  item_code,
-  th_price,
-  td_price,
-  recorded_at
-from item_price_history
-order by item_code, recorded_at desc;
+select distinct on (iph.item_code)
+  iph.item_code,
+  id.item_name,
+  iph.th_price,
+  iph.td_price,
+  iph.recorded_at
+from item_price_history iph
+join item_data id
+  on id.item_code = iph.item_code
+order by iph.item_code, iph.recorded_at desc;

@@ -88,6 +88,7 @@ export type Database = {
       latest_item_prices: {
         Row: {
           item_code: string;
+          item_name: string;
           th_price: number;
           td_price: number;
           recorded_at: string | null; // timestamptz
