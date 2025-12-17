@@ -7,7 +7,7 @@ export default function Navbar() {
   const currentPath = usePathname();
 
   return (
-    <nav className="flex flex-row gap-2 items-center justify-center">
+    <nav className="flex flex-row gap-2 items-center justify-center absolute w-full">
       <Link
         href="/"
         className={`font-semibold hover:underline${
