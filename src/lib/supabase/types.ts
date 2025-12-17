@@ -83,5 +83,17 @@ export type Database = {
         ];
       };
     };
+
+    Views: {
+      latest_item_prices: {
+        Row: {
+          item_code: string;
+          th_price: number;
+          td_price: number;
+          recorded_at: string | null; // timestamptz
+        };
+        Relationships: [];
+      };
+    }
   };
 };
