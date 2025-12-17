@@ -81,7 +81,7 @@ export default function Home() {
               !isValidToAddRow
                 ? 'opacity-50 cursor-not-allowed'
                 : 'cursor-pointer'
-            }`}
+            } hover:text-green-600`}
             disabled={!isValidToAddRow}
           >
             Add Row
@@ -91,7 +91,7 @@ export default function Home() {
             onClick={removeRow}
             className={`${
               !rows.length ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'
-            }`}
+            } hover:text-red-600`}
             disabled={!rows.length}
           >
             Remove Row
