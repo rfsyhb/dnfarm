@@ -20,3 +20,12 @@ left join lateral (
 ) lp on true;
 
 revoke all on public.v_items_price_stale from anon, authenticated;
+
+create view public.latest_item_prices with (security_invoker = on) as
+select distinct on (item_code)
+  item_code,
+  th_price,
+  td_price,
+  recorded_at
+from item_price_history
+order by item_code, recorded_at desc;
