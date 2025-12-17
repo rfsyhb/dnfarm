@@ -21,6 +21,10 @@ type Dungeon =
 
 type InvaderName = (typeof invaderData)[number]['name'];
 type AdditionalName = (typeof additionalItems)[number]['name'];
+type AdditionalItem = {
+  name: (typeof additionalItems)[number]['name'];
+  price: number;
+};
 
 const emptyInvaders = () =>
   Object.fromEntries(invaderData.map((i) => [i.name, 0])) as Record<
@@ -38,6 +42,8 @@ type DnFarmState = {
   rows: Row[];
   selectedDungeon?: Dungeon;
   invaderCounts: Record<InvaderName, number>;
+
+  additionalItems: AdditionalItem[];
   additionalCounts: Record<AdditionalName, number>;
 
   setDungeon: (d?: Dungeon) => void;
@@ -46,6 +52,8 @@ type DnFarmState = {
   removeRow: () => void;
 
   setInvaderCount: (name: InvaderName, value: number) => void;
+
+  setAdditionalItems: (items: AdditionalItem[]) => void;
   setAdditionalCount: (name: AdditionalName, value: number) => void;
 
   submitLatestRow: () => void;
@@ -60,6 +68,10 @@ export const useDnFarmStore = create<DnFarmState>()(
       selectedDungeon: undefined,
       invaderCounts: emptyInvaders(),
       additionalCounts: emptyAdditionals(),
+      additionalItems: additionalItems.map((i) => ({
+        name: i.name,
+        price: i.price,
+      })),
 
       setDungeon: (d) => set({ selectedDungeon: d }),
 
@@ -91,6 +103,8 @@ export const useDnFarmStore = create<DnFarmState>()(
           invaderCounts: { ...s.invaderCounts, [name]: Math.max(0, value) },
         })),
 
+      setAdditionalItems: (items) => set({ additionalItems: items }),
+
       setAdditionalCount: (name, value) =>
         set((s) => ({
           additionalCounts: {
@@ -107,13 +121,16 @@ export const useDnFarmStore = create<DnFarmState>()(
 
         const selectedFarmData = farmData[selectedDungeon];
 
-        const additionalGold = Object.entries(additionalCounts).reduce(
-          (sum, [name, count]) => {
-            const item = additionalItems.find((i) => i.name === name);
-            return sum + (item ? item.price * Number(count) : 0);
-          },
-          0
+        const additionalPriceByName = new Map<AdditionalName, number>(
+          get().additionalItems.map((i) => [i.name, i.price])
         );
+
+        const additionalGold = (
+          Object.entries(additionalCounts) as [AdditionalName, number][]
+        ).reduce((sum, [name, count]) => {
+          const price = additionalPriceByName.get(name) ?? 0;
+          return sum + price * Number(count);
+        }, 0);
 
         const additionalMinute = Object.entries(invaderCounts).reduce(
           (sum, [name, count]) => {

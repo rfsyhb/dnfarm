@@ -33,4 +33,4 @@ export const additionalItems = [
   { name: 'Polished Diamond', price: 3 },
   { name: 'Essence of Life', price: 5 },
   { name: 'Card Box', price: 20 },
-];
+] as const;

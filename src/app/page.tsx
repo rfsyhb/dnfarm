@@ -1,4 +1,5 @@
 'use client';
+import { AdditionalItemsHydrator } from '@/components/additionalItemsHydrator';
 import { additionalItems, farmData, goldRate, invaderData } from '@/lib/data';
 import { useDnFarmStore } from '@/store/dnfarm.store';
 
@@ -53,6 +54,7 @@ export default function Home() {
 
   return (
     <div className="w-full min-h-screen flex flex-col items-center justify-center p-8">
+      <AdditionalItemsHydrator />
       {/* header */}
       <div className="flex flex-row gap-2 items-center w-full">
         <h1 className="text-xl font-bold">dnFarm helper</h1>
