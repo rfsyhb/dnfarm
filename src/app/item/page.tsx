@@ -9,6 +9,7 @@ export default function ItemPage() {
   const { mutate: updatePrice } = useUpdatePrice();
   const { data, isLoading } = useItemData();
   const [copiedItemCode, setCopiedItemCode] = useState<string | null>(null);
+  const [keyword, setKeyword] = useState<string>('');
 
   if (isLoading) {
     return <div>Getting item data...</div>;
@@ -17,10 +18,9 @@ export default function ItemPage() {
   const onSubmitForm = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
-    const keyword = formData.get('keyword') as string;
     const item_code = formData.get('item_code') as string;
-    const th_price = Number(formData.get('th_price'));
-    const td_price = Number(formData.get('td_price'));
+    const th_price = Number(formData.get('th_price') ?? 0);
+    const td_price = Number(formData.get('td_price') ?? 0);
 
     const payload: UpdatePricePayload = {
       keyword,
@@ -40,7 +40,16 @@ export default function ItemPage() {
 
   return (
     <div className="min-h-screen w-full flex flex-col items-center justify-center p-8">
-      <h1 className='text-xl font-semibold w-full'>Item Page</h1>
+      <div className="flex flex-row items-center gap-2 w-full p-1">
+        <h1 className="text-xl font-semibold w-full">Item Page</h1>
+        <input
+          placeholder="icukuruwa?"
+          type="text"
+          value={keyword}
+          autoCorrect="off"
+          onChange={(e) => setKeyword(e.target.value)}
+        />
+      </div>
       <div className="h-120 w-full overflow-y-auto">
         <table className="w-full border border-separate border-spacing-0">
           <thead>
@@ -69,7 +78,9 @@ export default function ItemPage() {
             {data?.map((item) => (
               <tr
                 key={item.item_code}
-                className={`hover:bg-foreground/10 ${copiedItemCode === item.item_code ? 'bg-foreground/20' : ''}`}
+                className={`hover:bg-foreground/10 ${
+                  copiedItemCode === item.item_code ? 'bg-foreground/20' : ''
+                }`}
               >
                 <td className="px-2 py-1">
                   <button
@@ -99,31 +110,29 @@ export default function ItemPage() {
           className="sticky bottom-0 bg-background w-full px-2 py-2 flex gap-2"
         >
           <input
-            name="keyword"
-            type="text"
-            autoComplete="off"
-            placeholder="Keyword"
-          />
-          <input
             name="item_code"
             type="text"
             placeholder="Item Code"
+            required
           />
           <input
             name="th_price"
             type="number"
             step="any"
             placeholder="Market Price"
+            disabled={!keyword}
           />
           <input
             name="td_price"
             type="number"
             step="any"
             placeholder="Trade Price"
+            disabled={!keyword}
           />
           <button
             type="submit"
             className="cursor-pointer hover:text-yellow-500"
+            disabled={!keyword}
           >
             Update Price
           </button>
