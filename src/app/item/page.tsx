@@ -11,9 +11,20 @@ export default function ItemPage() {
   const [copiedItemCode, setCopiedItemCode] = useState<string | null>(null);
   const [keyword, setKeyword] = useState<string>('');
 
+  const SPECIAL_ITEMS = [
+    'Essence of Life',
+    'Card Box',
+    'Ordinary Diamond',
+    'Polished Diamond',
+  ];
+
   if (isLoading) {
     return <div>Getting item data...</div>;
   }
+
+  const isSpecialItem = (itemName: string) => {
+    return SPECIAL_ITEMS.includes(itemName);
+  };
 
   const onSubmitForm = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -80,7 +91,8 @@ export default function ItemPage() {
                 key={item.item_code}
                 className={`hover:bg-foreground/10 ${
                   copiedItemCode === item.item_code ? 'bg-foreground/20' : ''
-                }`}
+                  }
+                ${isSpecialItem(item.item_name) ? 'text-yellow-500' : ''}`}
               >
                 <td className="px-2 py-1">
                   <button
