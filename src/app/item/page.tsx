@@ -1,10 +1,15 @@
 'use client';
 
-import { useUpdatePrice } from '@/features/items/hooks';
+import { useItemData, useUpdatePrice } from '@/features/items/hooks';
 import type { UpdatePricePayload } from '@/lib/types';
 
 export default function ItemPage() {
   const { mutate: updatePrice } = useUpdatePrice();
+  const { data, isLoading } = useItemData();
+  
+  if (isLoading) {
+    return <div>Getting item data...</div>;
+  }
 
   const onSubmit = (payload: UpdatePricePayload) => {
     updatePrice(payload, {

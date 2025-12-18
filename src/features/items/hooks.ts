@@ -3,12 +3,14 @@
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { itemKeys } from './keys';
 import { useSupabase } from '@/lib/supabase/useSupabase';
-import { getLatestPricesFromView } from './api';
+import { getItemData, getLatestPricesFromView } from './api';
 import { Database } from '@/lib/supabase/types';
 import type { UpdatePricePayload } from '@/lib/types';
 
 type LatestItemPriceRow =
   Database['public']['Views']['latest_item_prices']['Row'];
+type ItemData = Database['public']['Tables']['item_data']['Row'];
+type MainItemData = Omit<ItemData & LatestItemPriceRow, 'id'>;
 
 export function useLatestPricesForCalculate(itemCodes: string[]) {
   const supabase = useSupabase();
@@ -36,5 +38,14 @@ export function useUpdatePrice() {
 
       return json as { ok: true; data: unknown } | { message: string };
     },
+  });
+}
+
+export function useItemData() {
+  const supabase = useSupabase();
+
+  return useQuery<MainItemData[]>({
+    queryKey: itemKeys.all,
+    queryFn: () => getItemData(supabase),
   });
 }

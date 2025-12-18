@@ -2,6 +2,8 @@ import type { SupabaseClient } from '@supabase/supabase-js';
 import type { Database } from '@/lib/supabase/types';
 
 type DB = Database;
+type ItemData = DB['public']['Tables']['item_data']['Row'];
+type ItemPriceHistory = DB['public']['Tables']['item_price_history']['Row'];
 
 export async function getLatestPricesFromView(
   supabase: SupabaseClient<DB>,
@@ -14,4 +16,37 @@ export async function getLatestPricesFromView(
 
   if (error) throw error;
   return data || [];
+}
+
+export async function getItemData(supabase: SupabaseClient<DB>) {
+  // Get master item data
+  const { data, error } = await supabase
+    .from('item_data')
+    .select('item_code, item_name, rarity');
+
+  if (error) throw error;
+  const items: Omit<ItemData, 'id'>[] = data;
+
+  // Get latest item prices history
+  const itemCodes = items
+    .map((item) => item.item_code)
+    .filter((code): code is string => code !== null);
+  const { data: latestPrices, error: priceError } = await supabase
+    .from('latest_item_prices')
+    .select('item_code, th_price, td_price, recorded_at')
+    .in('item_code', itemCodes);
+  if (priceError) throw priceError;
+  const itemPriceHistory: ItemPriceHistory[] = latestPrices;
+
+  // Merge item data with latest prices
+  const finalData = items.map((i) => {
+    const priceInfo = itemPriceHistory.find((p) => p.item_code === i.item_code);
+    return {
+      ...i,
+      th_price: priceInfo?.th_price || 0,
+      td_price: priceInfo?.td_price || 0,
+      recorded_at: priceInfo?.recorded_at || null,
+    };
+  });
+  return finalData;
 }

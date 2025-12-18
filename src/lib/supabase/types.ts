@@ -32,7 +32,7 @@ export type Database = {
       item_data: {
         Row: {
           id: string;
-          item_code: string | null;
+          item_code: string;
           item_name: Database['public']['Enums']['item_name'];
           rarity: Database['public']['Enums']['rarity_type'];
         };
@@ -57,7 +57,7 @@ export type Database = {
           item_code: string;
           th_price: number;
           td_price: number;
-          recorded_at: string | null; // timestamptz
+          recorded_at: string; // timestamptz
         };
         Insert: {
           item_code: string;
