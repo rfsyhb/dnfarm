@@ -60,11 +60,9 @@ export type Database = {
           recorded_at: string | null; // timestamptz
         };
         Insert: {
-          id?: string;
           item_code: string;
           th_price: number;
           td_price: number;
-          recorded_at?: string | null;
         };
         Update: {
           id?: string;
