@@ -1,6 +1,6 @@
 'use client';
 
-import { useMutation, useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { itemKeys } from './keys';
 import { useSupabase } from '@/lib/supabase/useSupabase';
 import { getItemData, getLatestPricesFromView } from './api';
@@ -23,6 +23,8 @@ export function useLatestPricesForCalculate(itemCodes: string[]) {
 }
 
 export function useUpdatePrice() {
+  const qc = useQueryClient();
+
   return useMutation({
     mutationFn: async (payload: UpdatePricePayload) => {
       const res = await fetch('/api/items', {
@@ -37,6 +39,9 @@ export function useUpdatePrice() {
       if (!res.ok) throw new Error(json.error || 'Request failed');
 
       return json as { ok: true; data: unknown } | { message: string };
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: itemKeys.all });
     },
   });
 }
