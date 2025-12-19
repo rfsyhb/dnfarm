@@ -32,3 +32,12 @@ from item_price_history iph
 join item_data id
   on id.item_code = iph.item_code
 order by iph.item_code, iph.recorded_at desc;
+
+CREATE VIEW public.latest_gold_rate WITH (security_invoker = on) AS
+SELECT
+  grh.gold_rate_sell,
+  grh.gold_rate_buy,
+  grh.recorded_at
+FROM public.gold_rate_history grh
+ORDER BY grh.recorded_at DESC
+LIMIT 1;

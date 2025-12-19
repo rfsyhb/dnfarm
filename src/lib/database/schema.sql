@@ -57,3 +57,16 @@ CREATE POLICY "Allow read access to all" ON item_price_history
 
 CREATE INDEX idx_item_price_history_item_time
 ON item_price_history (item_code, recorded_at DESC);
+
+CREATE TABLE gold_rate_history (
+  id uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
+  gold_rate_sell integer NOT NULL,
+  gold_rate_buy integer NOT NULL,
+  recorded_at timestamptz DEFAULT now()
+);
+
+ALTER TABLE gold_rate_history ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Allow read access to all" ON gold_rate_history
+  FOR SELECT
+  TO public
+  USING (true);
