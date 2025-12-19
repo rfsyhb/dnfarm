@@ -80,8 +80,21 @@ export type Database = {
           }
         ];
       };
-    };
 
+      gold_rate_history: {
+        Row: {
+          id: string;
+          gold_rate_sell: number;
+          gold_rate_buy: number;
+          recorded_at: string; // timestamptz
+        };
+        Insert: {
+          gold_rate_sell: number;
+          gold_rate_buy: number;
+        }
+      }
+    };
+    
     Views: {
       latest_item_prices: {
         Row: {
@@ -93,6 +106,13 @@ export type Database = {
         };
         Relationships: [];
       };
-    }
+      latest_gold_rate: {
+        Row: {
+          gold_rate_sell: number;
+          gold_rate_buy: number;
+          recorded_at: string; // timestamptz
+        };
+      };
+    };
   };
 };

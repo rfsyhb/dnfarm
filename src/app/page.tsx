@@ -1,6 +1,12 @@
 'use client';
 import { AdditionalItemsHydrator } from '@/components/additionalItemsHydrator';
-import { additionalItems, farmData, goldRate, invaderData } from '@/lib/data';
+import { useGoldData } from '@/features/others/hooks';
+import {
+  additionalItems,
+  farmData,
+  goldRate as defaultGoldRate,
+  invaderData,
+} from '@/lib/data';
 import { useDnFarmStore } from '@/store/dnfarm.store';
 
 type Dungeon =
@@ -15,6 +21,7 @@ export default function Home() {
   const selectedDungeon = useDnFarmStore((s) => s.selectedDungeon);
   const invaderCounts = useDnFarmStore((s) => s.invaderCounts);
   const additionalCounts = useDnFarmStore((s) => s.additionalCounts);
+  const { data: goldData, isLoading } = useGoldData();
 
   const setDungeon = useDnFarmStore((s) => s.setDungeon);
   const addRow = useDnFarmStore((s) => s.addRow);
@@ -23,6 +30,10 @@ export default function Home() {
   const setAdditionalCount = useDnFarmStore((s) => s.setAdditionalCount);
   const submitLatestRow = useDnFarmStore((s) => s.submitLatestRow);
   const resetAll = useDnFarmStore((s) => s.resetAll);
+
+  if (isLoading) {
+    return <div>Loading gold prices...</div>;
+  }
 
   const selectedFarmData = selectedDungeon ? farmData[selectedDungeon] : null;
 
@@ -41,6 +52,8 @@ export default function Home() {
     resetAll();
     // kalau mau sekalian hapus storage: useDnFarmStore.persist.clearStorage();
   };
+
+  const goldRate = goldData ? goldData.gold_rate_sell : defaultGoldRate;
 
   const totalRuns = rows.length;
   const totalGoldEarned = rows.reduce((sum, row) => sum + row.totalGold, 0);
@@ -301,7 +314,7 @@ export default function Home() {
                     <td className="border px-2 text-right">{totalTimeSpent}</td>
                   </tr>
                   <tr>
-                    <th className="border px-2 text-left">Rupiah Rate</th>
+                    <th className="border px-2 text-left">IDR Rate (rmt)</th>
                     <td className="border px-2 text-right">
                       {totalRupiahEarned}
                     </td>
@@ -311,10 +324,13 @@ export default function Home() {
             </div>
 
             {selectedFarmData ? (
-              <p className="text-sm opacity-70 mt-2">
-                Base: {selectedFarmData.defaultGoldEarned} gold /{' '}
-                {selectedFarmData.runDuration} menit
-              </p>
+              <div className="text-sm opacity-70 mt-2">
+                <p>
+                  Base: {selectedFarmData.defaultGoldEarned} gold /{' '}
+                  {selectedFarmData.runDuration} min
+                </p>
+                <p>Current gold rate: Rp {goldRate} / 100 gold</p>
+              </div>
             ) : (
               <p className="text-xs opacity-70 mt-2">
                 select a dungeon to see base data.
