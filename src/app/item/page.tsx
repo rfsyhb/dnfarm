@@ -61,8 +61,8 @@ export default function ItemPage() {
           onChange={(e) => setKeyword(e.target.value)}
         />
       </div>
-      <div className="h-120 w-full overflow-y-auto">
-        <table className="w-full border border-separate border-spacing-0">
+      <div className="h-120 w-full overflow-y-auto border">
+        <table className="w-full border-separate border-spacing-0">
           <thead>
             <tr>
               <th className="sticky top-0 bg-black border px-2 py-1 z-10">
@@ -91,7 +91,7 @@ export default function ItemPage() {
                 key={item.item_code}
                 className={`hover:bg-foreground/10 ${
                   copiedItemCode === item.item_code ? 'bg-foreground/20' : ''
-                  }
+                }
                 ${isSpecialItem(item.item_name) ? 'text-yellow-500' : ''}`}
               >
                 <td className="px-2 py-1">
@@ -117,39 +117,39 @@ export default function ItemPage() {
             ))}
           </tbody>
         </table>
-        <form
-          onSubmit={onSubmitForm}
-          className="sticky bottom-0 bg-background w-full px-2 py-2 flex gap-2"
-        >
-          <input
-            name="item_code"
-            type="text"
-            placeholder="Item Code"
-            required
-          />
-          <input
-            name="th_price"
-            type="number"
-            step="any"
-            placeholder="Market Price"
-            disabled={!keyword}
-          />
-          <input
-            name="td_price"
-            type="number"
-            step="any"
-            placeholder="Trade Price"
-            disabled={!keyword}
-          />
-          <button
-            type="submit"
-            className="cursor-pointer hover:text-yellow-500"
-            disabled={!keyword}
-          >
-            Update Price
-          </button>
-        </form>
       </div>
+      <form
+        onSubmit={onSubmitForm}
+        className="w-full px-2 py-2 flex gap-2"
+      >
+        <input
+          name="item_code"
+          type="text"
+          placeholder="Item Code"
+          required
+        />
+        <input
+          name="th_price"
+          type="number"
+          step="any"
+          placeholder="Market Price"
+          disabled={!keyword}
+        />
+        <input
+          name="td_price"
+          type="number"
+          step="any"
+          placeholder="Trade Price"
+          disabled={!keyword}
+        />
+        <button
+          type="submit"
+          className="cursor-pointer hover:text-yellow-500"
+          disabled={!keyword}
+        >
+          Update Price
+        </button>
+      </form>
     </div>
   );
 }
