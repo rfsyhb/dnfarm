@@ -43,6 +43,17 @@ export function useUpdatePrice() {
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: itemKeys.all });
     },
+    onError: (error: Error) => {
+      if (error.message === 'Forbidden') {
+        alert('Wrong keyword, bud.');
+        return;
+      }
+
+      if (error.message === 'Item not found') {
+        alert('Item code not found.');
+        return;
+      }
+    },
   });
 }
 
