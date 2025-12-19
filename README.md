@@ -1,8 +1,14 @@
 # dnfarm, a farming helper for sensodeyn team
 Berangkat dari masalah internal yang malas menulis berulang menggunakan excel/spreadsheet, maka dibuatlah alat bantu yang lebih cepat dan ringkas hehehe.
 
-### knowledge
-- slice(0, -1) returns all elements from the start up to (but not including) the last element.
-- `table-layout: fixed` membuat browser tidak peduli isi sel tapi dari lebar tabel dan deklarasi kolom
-- jika table layout fixed deklarasi `<colgroup>` sebelum thead atau tbody
-- tr tidak bisa untuk mengatur padding cell, hanya berlaku pada box element seperti `<td>` dan `<th>`
+### to-do list
+- [x] table farming data
+- [x] editor will change last or latest row
+- [x] fetch item master data
+- [x] fetch item latest price
+- [x] page item display all item with latest price
+- [ ] each item have button to display list history price
+- [ ] new function to display for Code (item) worth to sell
+- [ ] alter master item table to add new column `seal stamp needed`
+- [ ] editor last row track time `start` and `end` to calculate total minute
+- [ ] disable invader thinghy if `start` is activated (invader thingy act as fallback if user forgot to start)
