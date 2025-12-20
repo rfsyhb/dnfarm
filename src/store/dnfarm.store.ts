@@ -107,7 +107,13 @@ export const useDnFarmStore = create<DnFarmState>()(
         set({ rows: rows.slice(0, -1) });
       },
 
-      setStartAt: (start) => set({ startAt: start }),
+      setStartAt: (start) => {
+        if (start === null) {
+          set({ startAt: null });
+          set({ endAt: null });
+        }
+        set({ startAt: start });
+      },
       setEndAt: (end) => set({ endAt: end }),
 
       setInvaderCount: (name, value) =>
