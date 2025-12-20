@@ -17,6 +17,8 @@ type Dungeon =
   | 'West Ancient Armory';
 
 export default function Home() {
+  const startAt = useDnFarmStore((s) => s.startAt);
+  const endAt = useDnFarmStore((s) => s.endAt);
   const rows = useDnFarmStore((s) => s.rows);
   const selectedDungeon = useDnFarmStore((s) => s.selectedDungeon);
   const invaderCounts = useDnFarmStore((s) => s.invaderCounts);
@@ -26,6 +28,8 @@ export default function Home() {
   const setDungeon = useDnFarmStore((s) => s.setDungeon);
   const addRow = useDnFarmStore((s) => s.addRow);
   const removeRow = useDnFarmStore((s) => s.removeRow);
+  const setStartAt = useDnFarmStore((s) => s.setStartAt);
+  const setEndAt = useDnFarmStore((s) => s.setEndAt);
   const setInvaderCount = useDnFarmStore((s) => s.setInvaderCount);
   const setAdditionalCount = useDnFarmStore((s) => s.setAdditionalCount);
   const submitLatestRow = useDnFarmStore((s) => s.submitLatestRow);
@@ -65,6 +69,16 @@ export default function Home() {
     return date.toLocaleString();
   };
 
+  const getDateHoursMinutes = (isoString: string) => {
+    const date = new Date(isoString);
+    return date.toLocaleTimeString([], {
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit',
+      hour12: false,
+    });
+  };
+
   return (
     <div className="w-full min-h-screen flex flex-col items-center justify-center p-8">
       <AdditionalItemsHydrator />
@@ -95,8 +109,8 @@ export default function Home() {
             className={`${
               !isValidToAddRow
                 ? 'opacity-50 cursor-not-allowed'
-                : 'cursor-pointer'
-            } hover:text-green-600`}
+                : 'cursor-pointer hover:text-green-600'
+            } `}
             disabled={!isValidToAddRow}
           >
             Add Row
@@ -105,16 +119,18 @@ export default function Home() {
             type="button"
             onClick={removeRow}
             className={`${
-              !rows.length ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'
-            } hover:text-red-600`}
+              !rows.length
+                ? 'opacity-50 cursor-not-allowed'
+                : 'cursor-pointer hover:text-red-600'
+            } `}
             disabled={!rows.length}
           >
             Remove Row
           </button>
         </div>
         {/* table and configuration */}
-        <div className="flex flex-row gap-2 w-full">
-          <div className="h-130 w-full flex-3 overflow-y-auto border">
+        <div className="flex flex-row gap-2 w-full items-center">
+          <div className="h-140 w-full flex-3 overflow-y-auto border">
             <table className={`w-full ${rows.length ? '' : 'h-full'} border`}>
               <thead className="sticky top-0 bg-background">
                 <tr>
@@ -144,10 +160,12 @@ export default function Home() {
                       <td className="border px-2 py-1">{row.menit}</td>
                       <td className="border px-2 py-1">{row.additionalGold}</td>
                       <td className="border px-2 py-1">
-                        {row.additionalMinute}
+                        {row.additionalMinute.toFixed(2)}
                       </td>
                       <td className="border px-2 py-1">{row.totalGold}</td>
-                      <td className="border px-2 py-1">{row.totalMinute}</td>
+                      <td className="border px-2 py-1">
+                        {row.totalMinute.toFixed(2)}
+                      </td>
                       <td className="border px-2 py-1">
                         {getDateString(row.createdAt)}
                       </td>
@@ -167,7 +185,7 @@ export default function Home() {
             </table>
           </div>
           <div className="flex-1">
-            <form>
+            <form className="flex flex-col gap-1">
               <section aria-labelledby="invader">
                 <p id="invader">Invader thingy</p>
                 <table className="w-full table-fixed">
@@ -198,9 +216,23 @@ export default function Home() {
                             type="number"
                             min={0}
                             className="w-full text-center"
-                            disabled={rows.length === 0}
-                            placeholder={rows.length === 0 ? 'n/a' : '0'}
-                            value={invaderCounts[name]}
+                            disabled={
+                              rows.length === 0 ||
+                              !isDungeonSelected ||
+                              startAt !== null
+                            }
+                            placeholder={
+                              rows.length === 0
+                                ? 'n/a'
+                                : startAt !== null
+                                ? 'using time'
+                                : '0'
+                            }
+                            value={
+                              startAt !== null || rows.length === 0
+                                ? ''
+                                : invaderCounts[name]
+                            }
                             onChange={(e) =>
                               setInvaderCount(name, Number(e.target.value))
                             }
@@ -240,7 +272,7 @@ export default function Home() {
                     {additionalItems.map((item) => (
                       <tr key={item.name}>
                         <th
-                          className="border text-left px-2"
+                          className="border font-normal text-left px-2"
                           scope="row"
                         >
                           {item.name}
@@ -252,7 +284,11 @@ export default function Home() {
                             className="w-full text-center"
                             disabled={rows.length === 0}
                             placeholder={rows.length === 0 ? 'n/a' : '0'}
-                            value={additionalCounts[item.name]}
+                            value={
+                              rows.length === 0
+                                ? ''
+                                : additionalCounts[item.name]
+                            }
                             onChange={(e) =>
                               setAdditionalCount(
                                 item.name,
@@ -267,18 +303,100 @@ export default function Home() {
                 </table>
               </section>
 
+              <section aria-labelledby="Time">
+                <p id="Time">Time thingy</p>
+                <table className="w-full table-fixed">
+                  <colgroup>
+                    <col className="w-1/2" />
+                    <col className="w-1/2" />
+                  </colgroup>
+                  <thead>
+                    <tr>
+                      <th className="border px-2 py-1 text-left">Start At</th>
+                      <th className="border px-2 py-1 text-left">End At</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td className="border px-2 py-1">
+                        {startAt ? (
+                          <div className="flex flex-row items-center justify-between">
+                            <p>{getDateHoursMinutes(startAt)}</p>
+                            <button
+                              className="ml-2 text-red-500 hover:text-red-700 cursor-pointer"
+                              type="button"
+                              onClick={() => setStartAt(null)}
+                            >
+                              x
+                            </button>
+                          </div>
+                        ) : (
+                          <button
+                            className={`${
+                              rows.length === 0
+                                ? 'opacity-50 cursor-not-allowed'
+                                : 'cursor-pointer hover:text-green-500'
+                            }`}
+                            type="button"
+                            onClick={() => setStartAt(new Date().toISOString())}
+                            disabled={rows.length === 0}
+                          >
+                            {rows.length === 0 ? 'n/a' : '> click to set start'}
+                          </button>
+                        )}
+                      </td>
+                      <td className="border px-2 py-1">
+                        {endAt ? (
+                          <div className="flex flex-row items-center justify-between">
+                            <p>{getDateHoursMinutes(endAt)}</p>
+                            <button
+                              className="ml-2 text-red-500 hover:text-red-700 cursor-pointer"
+                              type="button"
+                              onClick={() => setEndAt(null)}
+                            >
+                              x
+                            </button>
+                          </div>
+                        ) : (
+                          <button
+                            className={`${
+                              !startAt
+                                ? 'opacity-50 cursor-not-allowed'
+                                : 'cursor-pointer hover:text-green-500'
+                            }`}
+                            type="button"
+                            onClick={() => setEndAt(new Date().toISOString())}
+                            disabled={!startAt}
+                          >
+                            {rows.length === 0
+                              ? 'n/a'
+                              : !startAt
+                              ? 'set start first!'
+                              : '> click to set end'}
+                          </button>
+                        )}
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </section>
+
               <div className="w-full flex flex-row items-center justify-center gap-2 mt-4">
                 <button
                   type="submit"
                   className={`px-2 py-1 border rounded-md bg-green-900 text-white ${
-                    !rows.length
+                    !rows.length || endAt === null
                       ? 'opacity-50 cursor-not-allowed'
                       : 'cursor-pointer'
                   }`}
-                  disabled={!rows.length}
+                  disabled={!rows.length || endAt === null}
                   onClick={handleSubmit}
                 >
-                  Submit Latest Row Data
+                  {!rows.length
+                    ? 'No rows'
+                    : endAt === null
+                    ? 'Set end time'
+                    : 'Submit Latest Row Data'}
                 </button>
                 <button
                   type="button"
@@ -290,7 +408,7 @@ export default function Home() {
                   disabled={!rows.length}
                   onClick={handleReset}
                 >
-                  Reset
+                  {!rows.length ? 'No data to reset' : 'Reset All Data'}
                 </button>
               </div>
             </form>
@@ -300,21 +418,29 @@ export default function Home() {
               <table className="table-fixed w-full">
                 <tbody>
                   <tr>
-                    <th className="border px-2 text-left">Total Run</th>
+                    <th className="border font-normal px-2 text-left">
+                      Total Run
+                    </th>
                     <td className="border px-2 text-right">{totalRuns}</td>
                   </tr>
                   <tr>
-                    <th className="border px-2 text-left">Gold Earned</th>
+                    <th className="border font-normal px-2 text-left">
+                      Gold Earned
+                    </th>
                     <td className="border px-2 text-right">
                       {totalGoldEarned}
                     </td>
                   </tr>
                   <tr>
-                    <th className="border px-2 text-left">Time Spent (min)</th>
+                    <th className="border font-normal px-2 text-left">
+                      Time Spent (min)
+                    </th>
                     <td className="border px-2 text-right">{totalTimeSpent}</td>
                   </tr>
                   <tr>
-                    <th className="border px-2 text-left">IDR Rate (rmt)</th>
+                    <th className="border font-normal px-2 text-left">
+                      IDR Rate (rmt)
+                    </th>
                     <td className="border px-2 text-right">
                       {totalRupiahEarned}
                     </td>
@@ -323,19 +449,17 @@ export default function Home() {
               </table>
             </div>
 
-            {selectedFarmData ? (
-              <div className="text-sm opacity-70 mt-2">
+            <div className="text-sm opacity-70 mt-2">
+              {selectedFarmData ? (
                 <p>
                   Base: {selectedFarmData.defaultGoldEarned} gold /{' '}
                   {selectedFarmData.runDuration} min
                 </p>
-                <p>Current gold rate: Rp {goldRate} / 100 gold</p>
-              </div>
-            ) : (
-              <p className="text-xs opacity-70 mt-2">
-                select a dungeon to see base data.
-              </p>
-            )}
+              ) : (
+                <p>No dungeon selected.</p>
+              )}
+              <p>Current gold rate: Rp {goldRate} / 100 gold</p>
+            </div>
           </div>
         </div>
       </div>

@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 import { additionalItems, farmData, invaderData } from '@/lib/data';
+import { getMsDurationString } from '@/lib/utils';
 
 type Row = {
   no: number;
@@ -46,10 +47,16 @@ type DnFarmState = {
   additionalItems: AdditionalItem[];
   additionalCounts: Record<AdditionalName, number>;
 
+  startAt: string | null;
+  endAt: string | null;
+
   setDungeon: (d?: Dungeon) => void;
 
   addRow: () => void;
   removeRow: () => void;
+
+  setStartAt: (start: string | null) => void;
+  setEndAt: (end: string | null) => void;
 
   setInvaderCount: (name: InvaderName, value: number) => void;
 
@@ -72,6 +79,8 @@ export const useDnFarmStore = create<DnFarmState>()(
         name: i.name,
         price: i.price,
       })),
+      startAt: null,
+      endAt: null,
 
       setDungeon: (d) => set({ selectedDungeon: d }),
 
@@ -97,6 +106,9 @@ export const useDnFarmStore = create<DnFarmState>()(
         if (!rows.length) return;
         set({ rows: rows.slice(0, -1) });
       },
+
+      setStartAt: (start) => set({ startAt: start }),
+      setEndAt: (end) => set({ endAt: end }),
 
       setInvaderCount: (name, value) =>
         set((s) => ({
@@ -132,16 +144,16 @@ export const useDnFarmStore = create<DnFarmState>()(
           return sum + price * Number(count);
         }, 0);
 
-        const additionalMinute = Object.entries(invaderCounts).reduce(
-          (sum, [name, count]) => {
-            const invader = invaderData.find((i) => i.name === name);
-            return sum + (invader ? invader.duration * Number(count) : 0);
-          },
-          0
-        );
-
+        const additionalMinute = !get().startAt
+          ? Object.entries(invaderCounts).reduce((sum, [name, count]) => {
+              const invader = invaderData.find((i) => i.name === name);
+              return sum + (invader ? invader.duration * Number(count) : 0);
+            }, 0)
+          : getMsDurationString(get().startAt ?? '', get().endAt ?? '') / 60000;
         const totalGold = selectedFarmData.defaultGoldEarned + additionalGold;
-        const totalMinute = selectedFarmData.runDuration + additionalMinute;
+        const totalMinute = get().startAt
+          ? additionalMinute
+          : selectedFarmData.runDuration + additionalMinute;
 
         const newRows = [...rows];
         newRows[newRows.length - 1] = {
@@ -162,7 +174,6 @@ export const useDnFarmStore = create<DnFarmState>()(
       resetAll: () =>
         set({
           rows: [],
-          selectedDungeon: undefined,
           invaderCounts: emptyInvaders(),
           additionalCounts: emptyAdditionals(),
         }),
