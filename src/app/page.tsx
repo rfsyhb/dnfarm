@@ -155,7 +155,7 @@ export default function Home() {
               <tbody className="overflow-y-auto">
                 {rows.length ? (
                   rows.map((row) => (
-                    <tr key={row.no}>
+                    <tr key={row.no} className={`${row.totalMinute === 0 ? 'bg-yellow-900' : ''}`}>
                       <td className="border px-2 py-1">{row.no}</td>
                       <td className="border px-2 py-1">{row.menit}</td>
                       <td className="border px-2 py-1">{row.additionalGold}</td>
