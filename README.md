@@ -10,5 +10,5 @@ Berangkat dari masalah internal yang malas menulis berulang menggunakan excel/sp
 - [ ] each item have button to display list history price
 - [ ] new function to display for Code (item) worth to sell
 - [ ] alter master item table to add new column `seal stamp needed`
-- [ ] editor last row track time `start` and `end` to calculate total minute
-- [ ] disable invader thinghy if `start` is activated (invader thingy act as fallback if user forgot to start)
+- [x] editor last row track time `start` and `end` to calculate total minute
+- [x] disable invader thinghy if `start` is activated (invader thingy act as fallback if user forgot to start)
