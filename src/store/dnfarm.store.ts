@@ -109,8 +109,10 @@ export const useDnFarmStore = create<DnFarmState>()(
 
       setStartAt: (start) => {
         if (start === null) {
-          set({ startAt: null });
-          set({ endAt: null });
+          set({
+            startAt: null,
+            endAt: null,
+          });
         }
         set({ startAt: start });
       },
@@ -172,6 +174,8 @@ export const useDnFarmStore = create<DnFarmState>()(
 
         set({
           rows: newRows,
+          startAt: null,
+          endAt: null,
           invaderCounts: emptyInvaders(),
           additionalCounts: emptyAdditionals(),
         });
