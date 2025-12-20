@@ -435,7 +435,9 @@ export default function Home() {
                     <th className="border font-normal px-2 text-left">
                       Time Spent (min)
                     </th>
-                    <td className="border px-2 text-right">{totalTimeSpent.toFixed(2)}</td>
+                    <td className="border px-2 text-right">
+                      {totalTimeSpent.toFixed(2)}
+                    </td>
                   </tr>
                   <tr>
                     <th className="border font-normal px-2 text-left">
