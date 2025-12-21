@@ -35,18 +35,21 @@ export type Database = {
           item_code: string;
           item_name: Database['public']['Enums']['item_name'];
           rarity: Database['public']['Enums']['rarity_type'];
+          stampable: boolean;
+          stamp_total: number;
         };
         Insert: {
-          id?: string;
-          item_code?: string | null;
           item_name: Database['public']['Enums']['item_name'];
           rarity: Database['public']['Enums']['rarity_type'];
+          stampable: boolean;
+          stamp_total?: number;
         };
         Update: {
-          id?: string;
-          item_code?: string | null;
-          item_name?: Database['public']['Enums']['item_name'];
+          item_code: string | null;
+          item_name: Database['public']['Enums']['item_name'];
           rarity?: Database['public']['Enums']['rarity_type'];
+          stampable?: boolean;
+          stamp_total?: number;
         };
         Relationships: [];
       };
@@ -65,11 +68,10 @@ export type Database = {
           td_price: number;
         };
         Update: {
-          id?: string;
-          item_code?: string;
+          item_code: string;
           th_price?: number;
           td_price?: number;
-          recorded_at?: string | null;
+          recorded_at: string | null;
         };
         Relationships: [
           {

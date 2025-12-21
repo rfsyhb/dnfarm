@@ -65,22 +65,25 @@ export default function ItemPage() {
         <table className="w-full border-separate border-spacing-0">
           <thead>
             <tr>
-              <th className="sticky top-0 bg-black border px-2 py-1 z-10">
+              <th className="sticky top-0 bg-background border px-2 py-1 z-10">
                 Item Code
               </th>
-              <th className="sticky top-0 bg-black border px-2 py-1 z-10">
+              <th className="sticky top-0 bg-background border px-2 py-1 z-10">
                 Item Name
               </th>
-              <th className="sticky top-0 bg-black border px-2 py-1 z-10">
+              <th className="sticky top-0 bg-background border px-2 py-1 z-10">
                 Rarity
               </th>
-              <th className="sticky top-0 bg-black border px-2 py-1 z-10">
+              <th className="sticky top-0 bg-background border px-2 py-1 z-10">
                 Market Price
               </th>
-              <th className="sticky top-0 bg-black border px-2 py-1 z-10">
+              <th className="sticky top-0 bg-background border px-2 py-1 z-10">
                 Trade Price
               </th>
-              <th className="sticky top-0 bg-black border px-2 py-1 z-10">
+              <th className="sticky top-0 bg-background border px-2 py-1 z-10">
+                After tax n stamp
+              </th>
+              <th className="sticky top-0 bg-background border px-2 py-1 z-10">
                 Recorded At
               </th>
             </tr>
@@ -110,6 +113,7 @@ export default function ItemPage() {
                 <td className="px-2 py-1">{item.rarity}</td>
                 <td className="px-2 py-1 text-right">{item.th_price}</td>
                 <td className="px-2 py-1 text-right">{item.td_price}</td>
+                <td className="px-2 py-1 text-right">placeholder</td>
                 <td className="px-2 py-1">
                   {item.recorded_at ? getDateString(item.recorded_at) : 'n/a'}
                 </td>

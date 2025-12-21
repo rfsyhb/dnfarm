@@ -30,7 +30,9 @@ CREATE TABLE item_data (
   id uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
   item_code text UNIQUE,
   item_name item_name NOT NULL,
-  rarity rarity_type NOT NULL
+  rarity rarity_type NOT NULL,
+  stampable boolean NOT NULL DEFAULT false,
+  stamp_total integer NOT NULL DEFAULT 0,
 );
 
 ALTER TABLE item_data ENABLE ROW LEVEL SECURITY;
