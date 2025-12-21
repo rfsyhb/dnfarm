@@ -8,8 +8,8 @@ Berangkat dari masalah internal yang malas menulis berulang menggunakan excel/sp
 - [x] fetch item latest price
 - [x] page item display all item with latest price
 - [ ] each item have button to display list history price
-- [ ] new function to display for Code (item) worth to sell
+- [x] new function to display for Code (item) worth to sell
 - [x] alter master item table to add new column `seal stamp needed`
-- [ ] alter master item table to add new column `stampable`
+- [x] alter master item table to add new column `stampable`
 - [x] editor last row track time `start` and `end` to calculate total minute
 - [x] disable invader thinghy if `start` is activated (invader thingy act as fallback if user forgot to start)

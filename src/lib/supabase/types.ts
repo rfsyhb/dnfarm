@@ -104,7 +104,7 @@ export type Database = {
           item_name: string;
           th_price: number;
           td_price: number;
-          recorded_at: string | null; // timestamptz
+          recorded_at: string; // timestamptz
         };
         Relationships: [];
       };

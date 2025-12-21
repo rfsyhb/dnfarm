@@ -22,7 +22,7 @@ export async function getItemData(supabase: SupabaseClient<DB>) {
   // Get master item data
   const { data, error } = await supabase
     .from('item_data')
-    .select('item_code, item_name, rarity');
+    .select('item_code, item_name, rarity, stampable, stamp_total');
 
   if (error) throw error;
   const items: Omit<ItemData, 'id'>[] = data;
@@ -45,7 +45,7 @@ export async function getItemData(supabase: SupabaseClient<DB>) {
       ...i,
       th_price: priceInfo?.th_price || 0,
       td_price: priceInfo?.td_price || 0,
-      recorded_at: priceInfo?.recorded_at || null,
+      recorded_at: priceInfo?.recorded_at ?? new Date().toISOString(),
     };
   });
   return finalData;

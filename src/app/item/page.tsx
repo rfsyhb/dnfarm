@@ -2,12 +2,16 @@
 
 import { useItemData, useUpdatePrice } from '@/features/items/hooks';
 import type { UpdatePricePayload } from '@/lib/types';
-import { getDateString } from '@/lib/utils';
+import {
+  calculateAfterTaxAndStamp,
+  calculateStampPrice,
+  getDateString,
+} from '@/lib/utils';
 import { useState } from 'react';
 
 export default function ItemPage() {
   const { mutate: updatePrice } = useUpdatePrice();
-  const { data, isLoading } = useItemData();
+  const { data, isLoading, isError } = useItemData();
   const [copiedItemCode, setCopiedItemCode] = useState<string | null>(null);
   const [keyword, setKeyword] = useState<string>('');
 
@@ -20,6 +24,10 @@ export default function ItemPage() {
 
   if (isLoading) {
     return <div>Getting item data...</div>;
+  }
+
+  if (isError || !data) {
+    return <div>Failed to load item data.</div>;
   }
 
   const isSpecialItem = (itemName: string) => {
@@ -48,6 +56,9 @@ export default function ItemPage() {
     await navigator.clipboard.writeText(itemCode);
     setCopiedItemCode(itemCode);
   };
+
+  const lavishPrice = data.find((item) => item.item_name.includes('Lavish'))
+    ?.th_price as number;
 
   return (
     <div className="min-h-screen w-full flex flex-col items-center justify-center p-8">
@@ -78,10 +89,10 @@ export default function ItemPage() {
                 Market Price
               </th>
               <th className="sticky top-0 bg-background border px-2 py-1 z-10">
-                Trade Price
+                After tax & stamp
               </th>
               <th className="sticky top-0 bg-background border px-2 py-1 z-10">
-                After tax n stamp
+                Trade Price
               </th>
               <th className="sticky top-0 bg-background border px-2 py-1 z-10">
                 Recorded At
@@ -89,36 +100,56 @@ export default function ItemPage() {
             </tr>
           </thead>
           <tbody className="overflow-y-auto">
-            {data?.map((item) => (
-              <tr
-                key={item.item_code}
-                className={`hover:bg-foreground/10 ${
-                  copiedItemCode === item.item_code ? 'bg-foreground/20' : ''
-                }
+            {data?.map((item) => {
+              const itemData = {
+                item_code: item.item_code,
+                th_price: item.th_price,
+                td_price: item.td_price,
+                recorded_at: item.recorded_at,
+              };
+              const stampPrice = calculateStampPrice(item, lavishPrice);
+              const afterSellPrice = calculateAfterTaxAndStamp(
+                itemData,
+                stampPrice
+              );
+              const isNegative = afterSellPrice < 0;
+              return (
+                <tr
+                  key={item.item_code}
+                  className={`hover:bg-foreground/10 ${
+                    copiedItemCode === item.item_code ? 'bg-foreground/20' : ''
+                  }
                 ${isSpecialItem(item.item_name) ? 'text-yellow-500' : ''}`}
-              >
-                <td className="px-2 py-1">
-                  <button
-                    type="button"
-                    onClick={() => handleCopyItemCode(item.item_code)}
-                    className={`hover:underline cursor-pointer${
-                      copiedItemCode === item.item_code ? ' text-green-500' : ''
-                    }`}
-                    title="Click to copy"
+                >
+                  <td className="px-2 py-1">
+                    <button
+                      type="button"
+                      onClick={() => handleCopyItemCode(item.item_code)}
+                      className={`hover:underline cursor-pointer${
+                        copiedItemCode === item.item_code
+                          ? ' text-green-500'
+                          : ''
+                      }`}
+                      title="Click to copy"
+                    >
+                      {item.item_code}
+                    </button>
+                  </td>
+                  <td className="px-2 py-1">{item.item_name}</td>
+                  <td className="px-2 py-1">{item.rarity}</td>
+                  <td className="px-2 py-1 text-right">{item.th_price}</td>
+                  <td
+                    className={`px-2 py-1 text-right ${isNegative ? 'text-red-500' : ''}`}
                   >
-                    {item.item_code}
-                  </button>
-                </td>
-                <td className="px-2 py-1">{item.item_name}</td>
-                <td className="px-2 py-1">{item.rarity}</td>
-                <td className="px-2 py-1 text-right">{item.th_price}</td>
-                <td className="px-2 py-1 text-right">{item.td_price}</td>
-                <td className="px-2 py-1 text-right">placeholder</td>
-                <td className="px-2 py-1">
-                  {item.recorded_at ? getDateString(item.recorded_at) : 'n/a'}
-                </td>
-              </tr>
-            ))}
+                    {afterSellPrice}
+                  </td>
+                  <td className="px-2 py-1 text-right">{item.td_price}</td>
+                  <td className="px-2 py-1">
+                    {item.recorded_at ? getDateString(item.recorded_at) : 'n/a'}
+                  </td>
+                </tr>
+              );
+            })}
           </tbody>
         </table>
       </div>
