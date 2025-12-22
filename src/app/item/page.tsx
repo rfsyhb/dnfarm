@@ -2,10 +2,8 @@
 
 import { useItemData, useUpdatePrice } from '@/features/items/hooks';
 import type { UpdatePricePayload } from '@/lib/types';
-import {
-  getReadableDateString,
-  sortItemsByRarity,
-} from '@/lib/utils';
+import { getReadableDateString, sortItemsByRarity } from '@/lib/utils';
+import Link from 'next/link';
 import { useState } from 'react';
 
 export default function ItemPage() {
@@ -95,6 +93,9 @@ export default function ItemPage() {
               <th className="sticky top-0 bg-background border px-2 py-1 z-10">
                 Recorded At
               </th>
+              <th className="sticky top-0 bg-background border px-2 py-1 z-10">
+                Action
+              </th>
             </tr>
           </thead>
           <tbody className="overflow-y-auto">
@@ -137,6 +138,16 @@ export default function ItemPage() {
                     {item.recorded_at
                       ? getReadableDateString(item.recorded_at)
                       : 'n/a'}
+                  </td>
+                  <td className="px-2 py-1 text-center">
+                    <Link href={`/item/history/${item.item_code}`}>
+                      <button
+                        type="button"
+                        className="cursor-pointer w-full border px-2 hover:bg-foreground/20 rounded-xl"
+                      >
+                        History
+                      </button>
+                    </Link>
                   </td>
                 </tr>
               );
