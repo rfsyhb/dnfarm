@@ -48,3 +48,15 @@ export const calculateAfterTaxAndStamp = (
     ? Math.round(afterTaxAndStamp)
     : Number(afterTaxAndStamp.toFixed(3));
 };
+
+type Rarity = DB['public']['Enums']['rarity_type'];
+type ItemDataToSort = ItemData & ItemPriceHistory;
+const rarityOrder: Rarity[] = ['Common', 'Rare', 'Epic', 'Unique', 'Legendary'];
+
+const sortByRarity = (a: Rarity, b: Rarity) => {
+  return rarityOrder.indexOf(a) - rarityOrder.indexOf(b);
+};
+
+export const sortItemsByRarity = (items: ItemDataToSort[]) => {
+  return items.sort((a, b) => sortByRarity(a.rarity, b.rarity));
+};

@@ -6,6 +6,7 @@ import {
   calculateAfterTaxAndStamp,
   calculateStampPrice,
   getDateString,
+  sortItemsByRarity,
 } from '@/lib/utils';
 import { useState } from 'react';
 
@@ -29,6 +30,8 @@ export default function ItemPage() {
   if (isError || !data) {
     return <div>Failed to load item data.</div>;
   }
+
+  const sortedItems = sortItemsByRarity(data);
 
   const isSpecialItem = (itemName: string) => {
     return SPECIAL_ITEMS.includes(itemName);
@@ -100,7 +103,7 @@ export default function ItemPage() {
             </tr>
           </thead>
           <tbody className="overflow-y-auto">
-            {data?.map((item) => {
+            {sortedItems.map((item) => {
               const itemData = {
                 item_code: item.item_code,
                 th_price: item.th_price,
