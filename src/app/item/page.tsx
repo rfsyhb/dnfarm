@@ -142,13 +142,17 @@ export default function ItemPage() {
                   <td className="px-2 py-1">{item.rarity}</td>
                   <td className="px-2 py-1 text-right">{item.th_price}</td>
                   <td
-                    className={`px-2 py-1 text-right ${isNegative ? 'text-red-500' : ''}`}
+                    className={`px-2 py-1 text-right ${
+                      isNegative ? 'text-red-500' : ''
+                    }`}
                   >
                     {afterSellPrice}
                   </td>
                   <td className="px-2 py-1 text-right">{item.td_price}</td>
                   <td className="px-2 py-1">
-                    {item.recorded_at ? getReadableDateString(item.recorded_at) : 'n/a'}
+                    {item.recorded_at
+                      ? getReadableDateString(item.recorded_at)
+                      : 'n/a'}
                   </td>
                 </tr>
               );
@@ -170,19 +174,23 @@ export default function ItemPage() {
           name="th_price"
           type="number"
           step="any"
-          placeholder="Market Price"
+          placeholder={`${keyword ? 'Market Price' : 'n/a'}`}
           disabled={!keyword}
         />
         <input
           name="td_price"
           type="number"
           step="any"
-          placeholder="Trade Price"
+          placeholder={`${keyword ? 'Trade Price' : 'n/a'}`}
           disabled={!keyword}
         />
         <button
           type="submit"
-          className="cursor-pointer hover:text-yellow-500"
+          className={`${
+            keyword
+              ? 'cursor-pointer hover:text-yellow-500'
+              : 'opacity-50 cursor-not-allowed'
+          }`}
           disabled={!keyword}
         >
           Update Price
