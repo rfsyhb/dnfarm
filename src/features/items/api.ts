@@ -50,8 +50,9 @@ export async function getItemData(supabase: SupabaseClient<DB>) {
     };
   });
 
-  const lavishPrice =
-    mergedData.find((item) => item.item_name.includes('Lavish'))?.th_price as number;
+  const lavishPrice = mergedData.find((item) =>
+    item.item_name.includes('Lavish')
+  )?.th_price as number;
 
   const finalData = mergedData.map((item) => {
     const itemData = {
@@ -61,14 +62,33 @@ export async function getItemData(supabase: SupabaseClient<DB>) {
       recorded_at: item.recorded_at,
     };
     const stampPrice = calculateStampPrice(item, lavishPrice);
-    const afterTaxAndStamp = calculateAfterTaxAndStamp(
-      itemData,
-      stampPrice
-    );
+    const afterTaxAndStamp = calculateAfterTaxAndStamp(itemData, stampPrice);
     return {
       ...item,
       afterTaxAndStamp,
     };
   });
   return finalData;
+}
+
+export async function getItemPriceHistory(
+  supabase: SupabaseClient<DB>,
+  itemCode: string
+) {
+  const { data, error } = await supabase
+    .from('item_price_history')
+    .select(`
+      item_code,
+      th_price,
+      td_price,
+      recorded_at,
+      item_data (
+        item_name
+      )
+    `)
+    .eq('item_code', itemCode)
+    .order('recorded_at', { ascending: true });
+
+  if (error) throw error;
+  return data || [];
 }
