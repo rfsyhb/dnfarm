@@ -5,7 +5,7 @@ import type { UpdatePricePayload } from '@/lib/types';
 import {
   calculateAfterTaxAndStamp,
   calculateStampPrice,
-  getDateString,
+  getReadableDateString,
   sortItemsByRarity,
 } from '@/lib/utils';
 import { useState } from 'react';
@@ -148,7 +148,7 @@ export default function ItemPage() {
                   </td>
                   <td className="px-2 py-1 text-right">{item.td_price}</td>
                   <td className="px-2 py-1">
-                    {item.recorded_at ? getDateString(item.recorded_at) : 'n/a'}
+                    {item.recorded_at ? getReadableDateString(item.recorded_at) : 'n/a'}
                   </td>
                 </tr>
               );

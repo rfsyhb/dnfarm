@@ -15,6 +15,20 @@ export const getDateString = (isoString: string) => {
   });
 };
 
+// ex: 01 Jan 2025 14:30:15
+export const getReadableDateString = (isoString: string) => {
+  const date = new Date(isoString);
+  return date.toLocaleString('en-GB', {
+    day: '2-digit',
+    month: 'short',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+    hour12: false,
+  });
+}
+
 export const getMsDurationString = (startIso: string, endIso: string) => {
   const start = new Date(startIso);
   const end = new Date(endIso);
