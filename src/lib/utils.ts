@@ -27,7 +27,7 @@ export const getReadableDateString = (isoString: string) => {
     second: '2-digit',
     hour12: false,
   });
-}
+};
 
 export const getMsDurationString = (startIso: string, endIso: string) => {
   const start = new Date(startIso);
@@ -64,7 +64,10 @@ export const calculateAfterTaxAndStamp = (
 };
 
 type Rarity = DB['public']['Enums']['rarity_type'];
-type ItemDataToSort = ItemData & ItemPriceHistory;
+type ItemDataToSort = ItemData &
+  ItemPriceHistory & {
+    afterTaxAndStamp: number;
+  };
 const rarityOrder: Rarity[] = ['Common', 'Rare', 'Epic', 'Unique', 'Legendary'];
 
 const sortByRarity = (a: Rarity, b: Rarity) => {

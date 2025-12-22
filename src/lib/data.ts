@@ -1,11 +1,11 @@
 export const farmData = {
   'Riverwort Village Ruins': {
     runDuration: 22,
-    defaultGoldEarned: 20,
+    defaultGoldEarned: 18,
   },
   'Dragon Follower Base': {
     runDuration: 22,
-    defaultGoldEarned: 22,
+    defaultGoldEarned: 21,
   },
   'Ancient Library': {
     runDuration: 32,
@@ -17,7 +17,7 @@ export const farmData = {
   },
   'West Ancient Armory': {
     runDuration: 27,
-    defaultGoldEarned: 20,
+    defaultGoldEarned: 19,
   },
 };
 
@@ -33,4 +33,10 @@ export const additionalItems = [
   { name: 'Polished Diamond', price: 3 },
   { name: 'Essence of Life', price: 5 },
   { name: 'Card Box', price: 20 },
+  { name: '(UQ) Mid Agate', price: 1 },
+  { name: '(UQ) Mid Crystal', price: 1 },
+  { name: '(UQ) Mid Diamond', price: 1 },
+  { name: '(EP) High Agate', price: 1 },
+  { name: '(EP) High Crystal', price: 1 },
+  { name: '(EP) High Diamond', price: 1 },
 ] as const;

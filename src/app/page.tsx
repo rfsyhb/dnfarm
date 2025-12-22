@@ -1,12 +1,8 @@
 'use client';
 import { AdditionalItemsHydrator } from '@/components/additionalItemsHydrator';
 import { useGoldData } from '@/features/others/hooks';
-import {
-  additionalItems,
-  farmData,
-  goldRate as defaultGoldRate,
-  invaderData,
-} from '@/lib/data';
+import { farmData, goldRate as defaultGoldRate, invaderData } from '@/lib/data';
+import { getReadableDateString } from '@/lib/utils';
 import { useDnFarmStore } from '@/store/dnfarm.store';
 
 type Dungeon =
@@ -20,6 +16,7 @@ export default function Home() {
   const startAt = useDnFarmStore((s) => s.startAt);
   const endAt = useDnFarmStore((s) => s.endAt);
   const rows = useDnFarmStore((s) => s.rows);
+  const additionalItems = useDnFarmStore((s) => s.additionalItems);
   const selectedDungeon = useDnFarmStore((s) => s.selectedDungeon);
   const invaderCounts = useDnFarmStore((s) => s.invaderCounts);
   const additionalCounts = useDnFarmStore((s) => s.additionalCounts);
@@ -63,19 +60,6 @@ export default function Home() {
   const totalGoldEarned = rows.reduce((sum, row) => sum + row.totalGold, 0);
   const totalTimeSpent = rows.reduce((sum, row) => sum + row.totalMinute, 0);
   const totalRupiahEarned = Math.round((totalGoldEarned / 100) * goldRate);
-
-  const getDateString = (isoString: string) => {
-    const date = new Date(isoString);
-    return date.toLocaleString([], {
-      year: 'numeric',
-      month: '2-digit',
-      day: '2-digit',
-      hour: '2-digit',
-      minute: '2-digit',
-      second: '2-digit',
-      hour12: false,
-    });
-  };
 
   const getDateHoursMinutes = (isoString: string) => {
     const date = new Date(isoString);
@@ -162,23 +146,36 @@ export default function Home() {
               </thead>
               <tbody className="overflow-y-auto">
                 {rows.length ? (
-                  rows.map((row) => (
-                    <tr key={row.no} className={`${row.totalMinute === 0 ? 'bg-yellow-900' : ''}`}>
-                      <td className="border px-2 py-1">{row.no}</td>
-                      <td className="border px-2 py-1">{row.menit}</td>
-                      <td className="border px-2 py-1">{row.additionalGold}</td>
-                      <td className="border px-2 py-1">
-                        {row.additionalMinute.toFixed(2)}
-                      </td>
-                      <td className="border px-2 py-1">{row.totalGold}</td>
-                      <td className="border px-2 py-1">
-                        {row.totalMinute.toFixed(2)}
-                      </td>
-                      <td className="border px-2 py-1">
-                        {getDateString(row.createdAt)}
-                      </td>
-                    </tr>
-                  ))
+                  rows.map((row) => {
+                    const isRounded = row.totalGold % 1 === 0;
+                    const goldDisplay = isRounded
+                      ? Math.round(row.totalGold)
+                      : row.totalGold.toFixed(3);
+                    return (
+                      <tr
+                        key={row.no}
+                        className={`${
+                          row.totalMinute === 0 ? 'bg-yellow-900' : ''
+                        }`}
+                      >
+                        <td className="border px-2 py-1">{row.no}</td>
+                        <td className="border px-2 py-1">{row.menit}</td>
+                        <td className="border px-2 py-1">
+                          {row.additionalGold}
+                        </td>
+                        <td className="border px-2 py-1">
+                          {row.additionalMinute.toFixed(2)}
+                        </td>
+                        <td className="border px-2 py-1">{goldDisplay}</td>
+                        <td className="border px-2 py-1">
+                          {row.totalMinute.toFixed(2)}
+                        </td>
+                        <td className="border px-2 py-1">
+                          {getReadableDateString(row.createdAt)}
+                        </td>
+                      </tr>
+                    );
+                  })
                 ) : (
                   <tr>
                     <td
@@ -192,7 +189,7 @@ export default function Home() {
               </tbody>
             </table>
           </div>
-          <div className="flex-1">
+          <div className="flex-1 flex flex-col">
             <form className="flex flex-col gap-1">
               <section aria-labelledby="invader">
                 <p id="invader">Invader thingy</p>
@@ -254,61 +251,81 @@ export default function Home() {
 
               <section aria-labelledby="additional">
                 <p id="additional">Additional stuff</p>
-                <table className="w-full table-fixed">
-                  <colgroup>
-                    <col className="w-1/2" />
-                    <col className="w-1/2" />
-                  </colgroup>
-                  <thead>
-                    <tr>
-                      <th
-                        className="border px-2 py-1"
-                        scope="col"
-                      >
-                        Item
-                      </th>
-                      <th
-                        className="border px-2 py-1"
-                        scope="col"
-                      >
-                        Quantity
-                      </th>
-                    </tr>
-                  </thead>
 
-                  <tbody>
-                    {additionalItems.map((item) => (
-                      <tr key={item.name}>
+                <div className="max-h-40 overflow-y-auto">
+                  <table className="w-full table-fixed border-separate border-spacing-0">
+                    <thead className="sticky top-0 z-10 bg-background">
+                      <tr>
                         <th
-                          className="border font-normal text-left px-2"
-                          scope="row"
+                          className="px-2 py-1 border-t border-l border-b"
+                          scope="col"
                         >
-                          {item.name}
+                          Item
                         </th>
-                        <td className="border">
-                          <input
-                            type="number"
-                            min={0}
-                            className="w-full text-center"
-                            disabled={rows.length === 0}
-                            placeholder={rows.length === 0 ? 'n/a' : '0'}
-                            value={
-                              rows.length === 0
-                                ? ''
-                                : additionalCounts[item.name]
-                            }
-                            onChange={(e) =>
-                              setAdditionalCount(
-                                item.name,
-                                Number(e.target.value)
-                              )
-                            }
-                          />
-                        </td>
+                        <th
+                          className="px-2 py-1 border-t border-l border-r border-b"
+                          scope="col"
+                        >
+                          Quantity
+                        </th>
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
+                    </thead>
+
+                    <tbody>
+                      {additionalItems.map((item, idx) => {
+                        const isLast = idx === additionalItems.length - 1;
+                        const isNotFirst = idx > 0;
+                        const isNotProfit = item.price <= 0;
+                        return (
+                          <tr key={item.name}>
+                            <th
+                              scope="row"
+                              className={[
+                                'px-2 text-left font-normal',
+                                'border-l border-gray-300',
+                                isLast ? 'border-b' : '',
+                                isNotFirst ? 'border-t' : '',
+                              ].join(' ')}
+                            >
+                              <span
+                                className={`${isNotProfit ? 'opacity-50 line-through' : ''}`}
+                              >
+                                {item.name}
+                              </span>
+                            </th>
+
+                            <td
+                              className={[
+                                'border-l border-r border-gray-300',
+                                isLast ? 'border-b' : '',
+                                isNotFirst ? 'border-t' : '',
+                              ].join(' ')}
+                            >
+                              <input
+                                type="number"
+                                min={0}
+                                className="w-full text-center"
+                                disabled={rows.length === 0 || isNotProfit}
+                                placeholder={rows.length === 0 ? 'n/a' : isNotProfit ? 'not profitable' : '0'}
+                                value={
+                                  rows.length === 0 || isNotProfit
+                                    ? ''
+                                    : additionalCounts[item.name]
+                                }
+                                onChange={(e) =>
+                                  setAdditionalCount(
+                                    item.name,
+                                    Number(e.target.value)
+                                  )
+                                }
+                              />
+                            </td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                </div>
               </section>
 
               <section aria-labelledby="Time">
@@ -389,7 +406,7 @@ export default function Home() {
                 </table>
               </section>
 
-              <div className="w-full flex flex-row items-center justify-center gap-2 mt-4">
+              <div className="w-full flex flex-row items-center justify-center gap-2 mt-1">
                 <button
                   type="submit"
                   className={`px-2 py-1 border rounded-md bg-green-900 text-white ${
@@ -422,7 +439,7 @@ export default function Home() {
             </form>
 
             <div>
-              <h2 className="font-bold mt-4">Final Data</h2>
+              <h2 className="font-bold mt-2">Final Data</h2>
               <table className="table-fixed w-full">
                 <tbody>
                   <tr>
@@ -436,7 +453,9 @@ export default function Home() {
                       Gold Earned
                     </th>
                     <td className="border px-2 text-right">
-                      {totalGoldEarned}
+                      {Number.isInteger(totalGoldEarned)
+                        ? totalGoldEarned
+                        : totalGoldEarned.toFixed(2)}
                     </td>
                   </tr>
                   <tr>

@@ -3,8 +3,6 @@
 import { useItemData, useUpdatePrice } from '@/features/items/hooks';
 import type { UpdatePricePayload } from '@/lib/types';
 import {
-  calculateAfterTaxAndStamp,
-  calculateStampPrice,
   getReadableDateString,
   sortItemsByRarity,
 } from '@/lib/utils';
@@ -60,9 +58,6 @@ export default function ItemPage() {
     setCopiedItemCode(itemCode);
   };
 
-  const lavishPrice = data.find((item) => item.item_name.includes('Lavish'))
-    ?.th_price as number;
-
   return (
     <div className="min-h-screen w-full flex flex-col items-center justify-center p-8">
       <div className="flex flex-row items-center gap-2 w-full p-1">
@@ -104,18 +99,7 @@ export default function ItemPage() {
           </thead>
           <tbody className="overflow-y-auto">
             {sortedItems.map((item) => {
-              const itemData = {
-                item_code: item.item_code,
-                th_price: item.th_price,
-                td_price: item.td_price,
-                recorded_at: item.recorded_at,
-              };
-              const stampPrice = calculateStampPrice(item, lavishPrice);
-              const afterSellPrice = calculateAfterTaxAndStamp(
-                itemData,
-                stampPrice
-              );
-              const isNegative = afterSellPrice < 0;
+              const isNegative = item.afterTaxAndStamp < 0;
               return (
                 <tr
                   key={item.item_code}
@@ -146,7 +130,7 @@ export default function ItemPage() {
                       isNegative ? 'text-red-500' : ''
                     }`}
                   >
-                    {afterSellPrice}
+                    {item.afterTaxAndStamp}
                   </td>
                   <td className="px-2 py-1 text-right">{item.td_price}</td>
                   <td className="px-2 py-1">

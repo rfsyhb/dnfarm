@@ -1,5 +1,6 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
 import type { Database } from '@/lib/supabase/types';
+import { calculateAfterTaxAndStamp, calculateStampPrice } from '@/lib/utils';
 
 type DB = Database;
 type ItemData = DB['public']['Tables']['item_data']['Row'];
@@ -39,13 +40,34 @@ export async function getItemData(supabase: SupabaseClient<DB>) {
   const itemPriceHistory: ItemPriceHistory[] = latestPrices;
 
   // Merge item data with latest prices
-  const finalData = items.map((i) => {
+  const mergedData = items.map((i) => {
     const priceInfo = itemPriceHistory.find((p) => p.item_code === i.item_code);
     return {
       ...i,
       th_price: priceInfo?.th_price || 0,
       td_price: priceInfo?.td_price || 0,
       recorded_at: priceInfo?.recorded_at ?? new Date().toISOString(),
+    };
+  });
+
+  const lavishPrice =
+    mergedData.find((item) => item.item_name.includes('Lavish'))?.th_price as number;
+
+  const finalData = mergedData.map((item) => {
+    const itemData = {
+      item_code: item.item_code,
+      th_price: item.th_price,
+      td_price: item.td_price,
+      recorded_at: item.recorded_at,
+    };
+    const stampPrice = calculateStampPrice(item, lavishPrice);
+    const afterTaxAndStamp = calculateAfterTaxAndStamp(
+      itemData,
+      stampPrice
+    );
+    return {
+      ...item,
+      afterTaxAndStamp,
     };
   });
   return finalData;

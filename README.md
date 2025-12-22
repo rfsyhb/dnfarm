@@ -13,3 +13,6 @@ Berangkat dari masalah internal yang malas menulis berulang menggunakan excel/sp
 - [x] alter master item table to add new column `stampable`
 - [x] editor last row track time `start` and `end` to calculate total minute
 - [x] disable invader thinghy if `start` is activated (invader thingy act as fallback if user forgot to start)
+- [x] move logic mapping item data to tanstack query layer
+- [x] add new additional stuff (potential codes)
+- [x] fix main feature doesnt use after tax and stamp price

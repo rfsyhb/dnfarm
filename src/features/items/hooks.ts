@@ -10,7 +10,10 @@ import type { UpdatePricePayload } from '@/lib/types';
 type LatestItemPriceRow =
   Database['public']['Views']['latest_item_prices']['Row'];
 type ItemData = Database['public']['Tables']['item_data']['Row'];
-type MainItemData = Omit<ItemData & LatestItemPriceRow, 'id'>;
+type MainItemData = Omit<
+  ItemData & LatestItemPriceRow & { afterTaxAndStamp: number },
+  'id'
+>;
 
 export function useLatestPricesForCalculate(itemCodes: string[]) {
   const supabase = useSupabase();
