@@ -77,3 +77,7 @@ const sortByRarity = (a: Rarity, b: Rarity) => {
 export const sortItemsByRarity = (items: ItemDataToSort[]) => {
   return items.sort((a, b) => sortByRarity(a.rarity, b.rarity));
 };
+
+export const getDecimalOrNumber = (value: number, decimal = 3) => {
+  return Number.isInteger(value) ? value : Number(value.toFixed(decimal));
+}

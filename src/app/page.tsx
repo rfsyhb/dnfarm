@@ -2,7 +2,7 @@
 import { AdditionalItemsHydrator } from '@/components/additionalItemsHydrator';
 import { useGoldData } from '@/features/others/hooks';
 import { farmData, goldRate as defaultGoldRate, invaderData } from '@/lib/data';
-import { getReadableDateString } from '@/lib/utils';
+import { getDecimalOrNumber, getReadableDateString } from '@/lib/utils';
 import { useDnFarmStore } from '@/store/dnfarm.store';
 
 type Dungeon =
@@ -146,36 +146,32 @@ export default function Home() {
               </thead>
               <tbody className="overflow-y-auto">
                 {rows.length ? (
-                  rows.map((row) => {
-                    const isRounded = row.totalGold % 1 === 0;
-                    const goldDisplay = isRounded
-                      ? Math.round(row.totalGold)
-                      : row.totalGold.toFixed(3);
-                    return (
-                      <tr
-                        key={row.no}
-                        className={`${
-                          row.totalMinute === 0 ? 'bg-yellow-900' : ''
-                        }`}
-                      >
-                        <td className="border px-2 py-1">{row.no}</td>
-                        <td className="border px-2 py-1">{row.menit}</td>
-                        <td className="border px-2 py-1">
-                          {row.additionalGold}
-                        </td>
-                        <td className="border px-2 py-1">
-                          {row.additionalMinute.toFixed(2)}
-                        </td>
-                        <td className="border px-2 py-1">{goldDisplay}</td>
-                        <td className="border px-2 py-1">
-                          {row.totalMinute.toFixed(2)}
-                        </td>
-                        <td className="border px-2 py-1">
-                          {getReadableDateString(row.createdAt)}
-                        </td>
-                      </tr>
-                    );
-                  })
+                  rows.map((row) => (
+                    <tr
+                      key={row.no}
+                      className={`${
+                        row.totalMinute === 0 ? 'bg-yellow-900' : ''
+                      }`}
+                    >
+                      <td className="border px-2 py-1">{row.no}</td>
+                      <td className="border px-2 py-1">{row.menit}</td>
+                      <td className="border px-2 py-1">
+                        {getDecimalOrNumber(row.additionalGold, 2)}
+                      </td>
+                      <td className="border px-2 py-1">
+                        {getDecimalOrNumber(row.additionalMinute, 2)}
+                      </td>
+                      <td className="border px-2 py-1">
+                        {getDecimalOrNumber(row.totalGold, 2)}
+                      </td>
+                      <td className="border px-2 py-1">
+                        {getDecimalOrNumber(row.totalMinute, 2)}
+                      </td>
+                      <td className="border px-2 py-1">
+                        {getReadableDateString(row.createdAt)}
+                      </td>
+                    </tr>
+                  ))
                 ) : (
                   <tr>
                     <td
@@ -288,7 +284,9 @@ export default function Home() {
                               ].join(' ')}
                             >
                               <span
-                                className={`${isNotProfit ? 'opacity-50 line-through' : ''}`}
+                                className={`${
+                                  isNotProfit ? 'opacity-50 line-through' : ''
+                                }`}
                               >
                                 {item.name}
                               </span>
@@ -306,7 +304,13 @@ export default function Home() {
                                 min={0}
                                 className="w-full text-center"
                                 disabled={rows.length === 0 || isNotProfit}
-                                placeholder={rows.length === 0 ? 'n/a' : isNotProfit ? 'not profitable' : '0'}
+                                placeholder={
+                                  rows.length === 0
+                                    ? 'n/a'
+                                    : isNotProfit
+                                    ? 'not profitable'
+                                    : '0'
+                                }
                                 value={
                                   rows.length === 0 || isNotProfit
                                     ? ''
@@ -453,9 +457,7 @@ export default function Home() {
                       Gold Earned
                     </th>
                     <td className="border px-2 text-right">
-                      {Number.isInteger(totalGoldEarned)
-                        ? totalGoldEarned
-                        : totalGoldEarned.toFixed(2)}
+                      {getDecimalOrNumber(totalGoldEarned, 2)}
                     </td>
                   </tr>
                   <tr>
@@ -463,7 +465,7 @@ export default function Home() {
                       Time Spent (min)
                     </th>
                     <td className="border px-2 text-right">
-                      {totalTimeSpent.toFixed(2)}
+                      {getDecimalOrNumber(totalTimeSpent, 2)}
                     </td>
                   </tr>
                   <tr>
