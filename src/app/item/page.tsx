@@ -13,10 +13,46 @@ export default function ItemPage() {
   const [keyword, setKeyword] = useState<string>('');
 
   const SPECIAL_ITEMS = [
-    'Essence of Life',
-    'Card Box',
-    'Ordinary Diamond',
-    'Polished Diamond',
+    {
+      name: 'Essence of Life',
+      rarity: 'Epic',
+    },
+    {
+      name: 'Card Box',
+      rarity: 'Epic',
+    },
+    {
+      name: 'Ordinary Diamond',
+      rarity: 'Rare',
+    },
+    {
+      name: 'Polished Diamond',
+      rarity: 'Rare',
+    },
+    {
+      name: 'Mid Grade Agate Code',
+      rarity: 'Unique',
+    },
+    {
+      name: 'Mid Grade Crystal Code',
+      rarity: 'Unique',
+    },
+    {
+      name: 'Mid Grade Diamond Code',
+      rarity: 'Unique',
+    },
+    {
+      name: 'High Grade Agate Code',
+      rarity: 'Epic',
+    },
+    {
+      name: 'High Grade Crystal Code',
+      rarity: 'Epic',
+    },
+    {
+      name: 'High Grade Diamond Code',
+      rarity: 'Epic',
+    },
   ];
 
   if (isLoading) {
@@ -29,8 +65,12 @@ export default function ItemPage() {
 
   const sortedItems = sortItemsByRarity(data);
 
-  const isSpecialItem = (itemName: string) => {
-    return SPECIAL_ITEMS.includes(itemName);
+  const isSpecialItem = (item: (typeof sortedItems)[number]) => {
+    return SPECIAL_ITEMS.some(
+      (specialItem) =>
+        specialItem.name === item.item_name &&
+        specialItem.rarity === item.rarity
+    );
   };
 
   const onSubmitForm = (e: React.FormEvent<HTMLFormElement>) => {
@@ -107,7 +147,7 @@ export default function ItemPage() {
                   className={`hover:bg-foreground/10 ${
                     copiedItemCode === item.item_code ? 'bg-foreground/20' : ''
                   }
-                ${isSpecialItem(item.item_name) ? 'text-yellow-500' : ''}`}
+                ${isSpecialItem(item) ? 'text-yellow-500' : ''}`}
                 >
                   <td className="px-2 py-1">
                     <button
