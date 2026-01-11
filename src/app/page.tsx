@@ -1,9 +1,11 @@
 'use client';
 import { AdditionalItemsHydrator } from '@/components/additionalItemsHydrator';
+import { Modal } from '@/components/modal';
 import { useGoldData } from '@/features/others/hooks';
 import { farmData, goldRate as defaultGoldRate, invaderData } from '@/lib/data';
 import { getDecimalOrNumber, getReadableDateString } from '@/lib/utils';
 import { useDnFarmStore } from '@/store/dnfarm.store';
+import { useState } from 'react';
 
 type Dungeon =
   | 'Riverwort Village Ruins'
@@ -21,6 +23,7 @@ export default function Home() {
   const invaderCounts = useDnFarmStore((s) => s.invaderCounts);
   const additionalCounts = useDnFarmStore((s) => s.additionalCounts);
   const { data: goldData, isLoading } = useGoldData();
+  const [isReset, setIsReset] = useState(false);
 
   const setDungeon = useDnFarmStore((s) => s.setDungeon);
   const addRow = useDnFarmStore((s) => s.addRow);
@@ -435,10 +438,30 @@ export default function Home() {
                       : 'cursor-pointer'
                   }`}
                   disabled={!rows.length}
-                  onClick={handleReset}
+                  onClick={() => {
+                    setIsReset(true);
+                  }}
                 >
                   {!rows.length ? 'No data to reset' : 'Reset All Data'}
                 </button>
+
+                <Modal
+                  open={isReset}
+                  onClose={() => setIsReset(false)}
+                >
+                  <div className="text-background flex flex-row items-center gap-4">
+                    <p className='font-sans font-medium'>Are you sure you want to reset all data?</p>
+                    <button
+                      className="px-2 py-1 bg-red-700 rounded-md text-white cursor-pointer hover:bg-red-900"
+                      onClick={() => {
+                        handleReset();
+                        setIsReset(false);
+                      }}
+                    >
+                      Yes, reset all
+                    </button>
+                  </div>
+                </Modal>
               </div>
             </form>
 

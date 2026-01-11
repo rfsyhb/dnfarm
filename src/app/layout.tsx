@@ -41,6 +41,7 @@ export default function RootLayout({
         <MobileGuard>
           <Navbar />
           <Providers>{children}</Providers>
+          <div id='portal-modal' />
         </MobileGuard>
       </body>
     </html>
