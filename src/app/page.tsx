@@ -25,6 +25,7 @@ export default function Home() {
   const { data: goldData, isLoading } = useGoldData();
   const [isReset, setIsReset] = useState(false);
   const [isRemove, setIsRemove] = useState(false);
+  const [openDetailData, setOpenDetailData] = useState(false);
 
   const setDungeon = useDnFarmStore((s) => s.setDungeon);
   const addRow = useDnFarmStore((s) => s.addRow);
@@ -127,8 +128,8 @@ export default function Home() {
             open={isRemove}
             onClose={() => setIsRemove(false)}
           >
-            <div className='text-background flex flex-row items-center gap-4'>
-              <p className='font-sans font-medium'>Are you sure?</p>
+            <div className="text-background flex flex-row items-center gap-4">
+              <p className="font-sans font-medium">Are you sure?</p>
               <button
                 className="px-2 py-1 bg-red-700 rounded-md text-white cursor-pointer hover:bg-red-900"
                 onClick={() => {
@@ -154,6 +155,7 @@ export default function Home() {
                     'Additional Minute',
                     'Total Gold',
                     'Total Minute',
+                    'Details',
                     'Created At',
                   ].map((header) => (
                     <th
@@ -187,6 +189,101 @@ export default function Home() {
                       </td>
                       <td className="border px-2 py-1">
                         {getDecimalOrNumber(row.totalMinute, 2)}
+                      </td>
+                      <td className="border px-2 py-1">
+                        <button
+                          className="hover:underline cursor-pointer"
+                          type="button"
+                          onClick={() => setOpenDetailData(true)}
+                        >
+                          View Details
+                        </button>
+                        <Modal
+                          open={openDetailData}
+                          onClose={() => setOpenDetailData(false)}
+                        >
+                          <div className="text-background w-100 max-h-160 ">
+                            <h2 className="font-bold text-xl">
+                              Detail Content
+                            </h2>
+                            {row.details ? (
+                              <div className="">
+                                {/* Basic Info */}
+                                <div className="text-sm">
+                                  <p>
+                                    <span className="font-medium">
+                                      Dungeon Name:
+                                    </span>{' '}
+                                    {row.details.dungeonName}
+                                  </p>
+                                  <p>
+                                    <span className="font-medium">
+                                      Base Gold:
+                                    </span>{' '}
+                                    {row.details.baseGold}
+                                  </p>
+                                  <p>
+                                    <span className="font-medium">
+                                      Base Minutes:
+                                    </span>{' '}
+                                    {row.details.baseMinutes}
+                                  </p>
+                                  <ul className="text-sm">
+                                    {Object.entries(
+                                      row.details.invaderData
+                                    ).map(([name, count]) => (
+                                      <li key={name}>
+                                        {name}: {count}
+                                      </li>
+                                    ))}
+                                  </ul>
+                                </div>
+
+                                {/* Additional Items */}
+                                <div className="">
+                                  <h3 className="font-semibold">
+                                    Additional Items
+                                  </h3>
+                                  <div className="overflow-x-auto">
+                                    <table className="w-full border border-border text-sm">
+                                      <thead className="bg-muted">
+                                        <tr>
+                                          <th className="px-3 py-1 text-left">
+                                            Item
+                                          </th>
+                                          <th className="px-3 py-1 text-right">
+                                            Count
+                                          </th>
+                                        </tr>
+                                      </thead>
+                                      <tbody>
+                                        {Object.entries(
+                                          row.details.additionalItemsData
+                                        ).map(([name, count]) => (
+                                          <tr
+                                            key={name}
+                                            className="border-t border-border"
+                                          >
+                                            <td className="px-3 py-1">
+                                              {name}
+                                            </td>
+                                            <td className="px-3 py-1 text-right">
+                                              {count}
+                                            </td>
+                                          </tr>
+                                        ))}
+                                      </tbody>
+                                    </table>
+                                  </div>
+                                </div>
+                              </div>
+                            ) : (
+                              <p className="text-sm text-muted-foreground">
+                                No details available.
+                              </p>
+                            )}
+                          </div>
+                        </Modal>
                       </td>
                       <td className="border px-2 py-1">
                         {getReadableDateString(row.createdAt)}
@@ -238,23 +335,9 @@ export default function Home() {
                             type="number"
                             min={0}
                             className="w-full text-center"
-                            disabled={
-                              rows.length === 0 ||
-                              !isDungeonSelected ||
-                              startAt !== null
-                            }
-                            placeholder={
-                              rows.length === 0
-                                ? 'n/a'
-                                : startAt !== null
-                                ? 'using time'
-                                : '0'
-                            }
-                            value={
-                              startAt !== null || rows.length === 0
-                                ? ''
-                                : invaderCounts[name]
-                            }
+                            disabled={rows.length === 0 || !isDungeonSelected}
+                            placeholder={''}
+                            value={rows.length === 0 ? '' : invaderCounts[name]}
                             onChange={(e) =>
                               setInvaderCount(name, Number(e.target.value))
                             }
@@ -324,7 +407,7 @@ export default function Home() {
                                 type="number"
                                 min={0}
                                 className="w-full text-center"
-                                disabled={rows.length === 0 || isNotProfit}
+                                disabled={rows.length === 0}
                                 placeholder={
                                   rows.length === 0
                                     ? 'n/a'
@@ -332,11 +415,7 @@ export default function Home() {
                                     ? 'not profitable'
                                     : '0'
                                 }
-                                value={
-                                  rows.length === 0 || isNotProfit
-                                    ? ''
-                                    : additionalCounts[item.name]
-                                }
+                                value={additionalCounts[item.name]}
                                 onChange={(e) =>
                                   setAdditionalCount(
                                     item.name,
@@ -468,7 +547,7 @@ export default function Home() {
                   onClose={() => setIsReset(false)}
                 >
                   <div className="text-background flex flex-row items-center gap-4">
-                    <p className='font-sans font-medium'>Reset all data?</p>
+                    <p className="font-sans font-medium">Reset all data?</p>
                     <button
                       className="px-2 py-1 bg-red-700 rounded-md text-white cursor-pointer hover:bg-red-900"
                       onClick={() => {

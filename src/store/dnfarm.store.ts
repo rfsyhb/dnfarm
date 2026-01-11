@@ -3,6 +3,15 @@ import { persist, createJSONStorage } from 'zustand/middleware';
 import { additionalItems, farmData, invaderData } from '@/lib/data';
 import { getMsDurationString } from '@/lib/utils';
 
+type CalculationDetails = {
+  invaderData: Record<InvaderName, number>;
+  additionalItemsData: Record<AdditionalName, number>;
+  baseGold: number;
+  baseMinutes: number;
+  usingBaseGold: boolean;
+  dungeonName: Dungeon;
+}
+
 type Row = {
   no: number;
   menit: number;
@@ -11,6 +20,7 @@ type Row = {
   totalGold: number;
   totalMinute: number;
   createdAt: string;
+  details?: CalculationDetails;
 };
 
 type Dungeon =
@@ -149,6 +159,9 @@ export const useDnFarmStore = create<DnFarmState>()(
           Object.entries(additionalCounts) as [AdditionalName, number][]
         ).reduce((sum, [name, count]) => {
           const price = additionalPriceByName.get(name) ?? 0;
+
+          if (price <= 0) return sum; // skip no-price (not profitable) items
+
           return sum + price * Number(count);
         }, 0);
 
@@ -162,6 +175,21 @@ export const useDnFarmStore = create<DnFarmState>()(
         const totalMinute = get().startAt
           ? additionalMinute
           : selectedFarmData.runDuration + additionalMinute;
+        
+        const invaderDataRecord = Object.fromEntries(
+          Object.entries(invaderCounts).map(([name, count]) => [name, Number(count)])
+        ) as Record<InvaderName, number>;
+        const additionalItemsDataRecord = Object.fromEntries(
+          Object.entries(additionalCounts).map(([name, count]) => [name, Number(count)])
+        ) as Record<AdditionalName, number>;
+        const details: CalculationDetails = {
+          invaderData: invaderDataRecord,
+          additionalItemsData: additionalItemsDataRecord,
+          baseGold: selectedFarmData.defaultGoldEarned,
+          baseMinutes: selectedFarmData.runDuration,
+          usingBaseGold: !!get().startAt,
+          dungeonName: selectedDungeon,
+        };
 
         const newRows = [...rows];
         newRows[newRows.length - 1] = {
@@ -170,6 +198,7 @@ export const useDnFarmStore = create<DnFarmState>()(
           additionalMinute,
           totalGold,
           totalMinute,
+          details,
         };
 
         set({
