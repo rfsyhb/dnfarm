@@ -6,7 +6,10 @@ import { useItemData } from '@/features/items/hooks';
 import { additionalItems as fallbackItems } from '@/lib/data';
 
 const config = [
-  { code: 'OD-RA', name: 'Ordinary Diamond' },
+  { code: 'FG-RA', name: 'Final Gold' },
+  { code: 'OD-RA', name: 'Ordinary Diamond' },  
+  { code: 'PA-RA', name: 'Polished Agate' },
+  { code: 'PAL-RA', name: 'Polished Alteum' },
   { code: 'PD-RA', name: 'Polished Diamond' },
   { code: 'EOL-EP', name: 'Essence of Life' },
   { code: 'CB-EP', name: 'Card Box' },

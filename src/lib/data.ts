@@ -29,7 +29,10 @@ export const invaderData = [
 ];
 
 export const additionalItems = [
+  { name: 'Final Gold', price: 1 },
   { name: 'Ordinary Diamond', price: 6 },
+  { name: 'Polished Agate', price: 0.3 },
+  { name: 'Polished Alteum', price: 0.3 },
   { name: 'Polished Diamond', price: 3 },
   { name: 'Essence of Life', price: 5 },
   { name: 'Card Box', price: 20 },

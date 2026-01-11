@@ -293,7 +293,7 @@ export default function Home() {
                 ) : (
                   <tr>
                     <td
-                      colSpan={7}
+                      colSpan={8}
                       className="border px-2 py-1 text-center min-h-full"
                     >
                       No rows
@@ -336,7 +336,9 @@ export default function Home() {
                             min={0}
                             className="w-full text-center"
                             disabled={rows.length === 0 || !isDungeonSelected}
-                            placeholder={''}
+                            placeholder={
+                              rows.length === 0 ? 'n/a' : 'not profitable'
+                            }
                             value={rows.length === 0 ? '' : invaderCounts[name]}
                             onChange={(e) =>
                               setInvaderCount(name, Number(e.target.value))
@@ -388,9 +390,26 @@ export default function Home() {
                               ].join(' ')}
                             >
                               <span
-                                className={`${
-                                  isNotProfit ? 'opacity-50 line-through' : ''
-                                }`}
+                                className={`
+                                  ${
+                                    isNotProfit ? 'opacity-50 line-through' : ''
+                                  }
+                                  ${
+                                    item.name.includes('UQ')
+                                      ? 'text-purple-400'
+                                      : ''
+                                  }
+                                  ${
+                                    item.name.includes('LG')
+                                      ? 'text-red-400'
+                                      : ''
+                                  }
+                                  ${
+                                    item.name.includes('EP')
+                                      ? 'text-yellow-400'
+                                      : ''
+                                  }
+                                `}
                               >
                                 {item.name}
                               </span>
@@ -409,13 +428,13 @@ export default function Home() {
                                 className="w-full text-center"
                                 disabled={rows.length === 0}
                                 placeholder={
-                                  rows.length === 0
-                                    ? 'n/a'
-                                    : isNotProfit
-                                    ? 'not profitable'
-                                    : '0'
+                                  rows.length === 0 ? 'n/a' : 'not profitable'
                                 }
-                                value={additionalCounts[item.name]}
+                                value={
+                                  rows.length === 0
+                                    ? ''
+                                    : additionalCounts[item.name]
+                                }
                                 onChange={(e) =>
                                   setAdditionalCount(
                                     item.name,

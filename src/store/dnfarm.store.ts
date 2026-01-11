@@ -10,7 +10,7 @@ type CalculationDetails = {
   baseMinutes: number;
   usingBaseGold: boolean;
   dungeonName: Dungeon;
-}
+};
 
 type Row = {
   no: number;
@@ -144,6 +144,7 @@ export const useDnFarmStore = create<DnFarmState>()(
         })),
 
       submitLatestRow: () => {
+        let isNotUsingBaseGold = false;
         const { rows, selectedDungeon, additionalCounts, invaderCounts } =
           get();
         const latestRow = rows[rows.length - 1];
@@ -160,7 +161,9 @@ export const useDnFarmStore = create<DnFarmState>()(
         ).reduce((sum, [name, count]) => {
           const price = additionalPriceByName.get(name) ?? 0;
 
+          if (name === 'Final Gold' && count > 0) isNotUsingBaseGold = true;
           if (price <= 0) return sum; // skip no-price (not profitable) items
+          console.log('Calculating additional item:', name, 'count:', count, 'price:', price);
 
           return sum + price * Number(count);
         }, 0);
@@ -171,16 +174,24 @@ export const useDnFarmStore = create<DnFarmState>()(
               return sum + (invader ? invader.duration * Number(count) : 0);
             }, 0)
           : getMsDurationString(get().startAt ?? '', get().endAt ?? '') / 60000;
-        const totalGold = selectedFarmData.defaultGoldEarned + additionalGold;
+        const totalGold = isNotUsingBaseGold
+          ? additionalGold
+          : selectedFarmData.defaultGoldEarned + additionalGold;
         const totalMinute = get().startAt
           ? additionalMinute
           : selectedFarmData.runDuration + additionalMinute;
-        
+
         const invaderDataRecord = Object.fromEntries(
-          Object.entries(invaderCounts).map(([name, count]) => [name, Number(count)])
+          Object.entries(invaderCounts).map(([name, count]) => [
+            name,
+            Number(count),
+          ])
         ) as Record<InvaderName, number>;
         const additionalItemsDataRecord = Object.fromEntries(
-          Object.entries(additionalCounts).map(([name, count]) => [name, Number(count)])
+          Object.entries(additionalCounts).map(([name, count]) => [
+            name,
+            Number(count),
+          ])
         ) as Record<AdditionalName, number>;
         const details: CalculationDetails = {
           invaderData: invaderDataRecord,
