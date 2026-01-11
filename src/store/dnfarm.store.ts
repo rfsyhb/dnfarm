@@ -163,10 +163,16 @@ export const useDnFarmStore = create<DnFarmState>()(
 
           if (name === 'Final Gold' && count > 0) isNotUsingBaseGold = true;
           if (price <= 0) return sum; // skip no-price (not profitable) items
-          console.log('Calculating additional item:', name, 'count:', count, 'price:', price);
+
+          // if using base gold then Polished Agate and Polished Alteum is skipped
+          if (name === 'Polished Agate' && !isNotUsingBaseGold) return sum;
+          if (name === 'Polished Alteum' && !isNotUsingBaseGold) return sum;
 
           return sum + price * Number(count);
         }, 0);
+
+        // Additional gold from board quest
+        const finalAdditionalGold = isNotUsingBaseGold ? additionalGold + (0.6 * 3) : additionalGold;
 
         const additionalMinute = !get().startAt
           ? Object.entries(invaderCounts).reduce((sum, [name, count]) => {
@@ -175,8 +181,8 @@ export const useDnFarmStore = create<DnFarmState>()(
             }, 0)
           : getMsDurationString(get().startAt ?? '', get().endAt ?? '') / 60000;
         const totalGold = isNotUsingBaseGold
-          ? additionalGold
-          : selectedFarmData.defaultGoldEarned + additionalGold;
+          ? finalAdditionalGold
+          : selectedFarmData.defaultGoldEarned + finalAdditionalGold;
         const totalMinute = get().startAt
           ? additionalMinute
           : selectedFarmData.runDuration + additionalMinute;
