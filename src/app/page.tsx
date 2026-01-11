@@ -24,6 +24,7 @@ export default function Home() {
   const additionalCounts = useDnFarmStore((s) => s.additionalCounts);
   const { data: goldData, isLoading } = useGoldData();
   const [isReset, setIsReset] = useState(false);
+  const [isRemove, setIsRemove] = useState(false);
 
   const setDungeon = useDnFarmStore((s) => s.setDungeon);
   const addRow = useDnFarmStore((s) => s.addRow);
@@ -112,7 +113,7 @@ export default function Home() {
           </button>
           <button
             type="button"
-            onClick={removeRow}
+            onClick={() => setIsRemove(true)}
             className={`${
               !rows.length
                 ? 'opacity-50 cursor-not-allowed'
@@ -122,6 +123,23 @@ export default function Home() {
           >
             Remove Row
           </button>
+          <Modal
+            open={isRemove}
+            onClose={() => setIsRemove(false)}
+          >
+            <div className='text-background flex flex-row items-center gap-4'>
+              <p className='font-sans font-medium'>Are you sure?</p>
+              <button
+                className="px-2 py-1 bg-red-700 rounded-md text-white cursor-pointer hover:bg-red-900"
+                onClick={() => {
+                  removeRow();
+                  setIsRemove(false);
+                }}
+              >
+                Yes, remove latest row
+              </button>
+            </div>
+          </Modal>
         </div>
         {/* table and configuration */}
         <div className="flex flex-row gap-2 w-full items-center">
@@ -450,7 +468,7 @@ export default function Home() {
                   onClose={() => setIsReset(false)}
                 >
                   <div className="text-background flex flex-row items-center gap-4">
-                    <p className='font-sans font-medium'>Are you sure you want to reset all data?</p>
+                    <p className='font-sans font-medium'>Reset all data?</p>
                     <button
                       className="px-2 py-1 bg-red-700 rounded-md text-white cursor-pointer hover:bg-red-900"
                       onClick={() => {
