@@ -6,22 +6,22 @@ import { useItemData } from '@/features/items/hooks';
 import { additionalItems as fallbackItems } from '@/lib/data';
 
 const config = [
-  { code: 'FG-RA', name: 'Final Gold' },
-  { code: 'OD-RA', name: 'Ordinary Diamond' },  
-  { code: 'PA-RA', name: 'Polished Agate' },
-  { code: 'PAL-RA', name: 'Polished Alteum' },
-  { code: 'PD-RA', name: 'Polished Diamond' },
-  { code: 'EOL-EP', name: 'Essence of Life' },
-  { code: 'CB-EP', name: 'Card Box' },
+  { code: 'HGAC-EP', name: '(EP) High Agate' },
+  { code: 'HGCC-EP', name: '(EP) High Crystal' },
+  { code: 'HGDC-EP', name: '(EP) High Diamond' },
   { code: 'MGAC-UQ', name: '(UQ) Mid Agate' },
   { code: 'MGCC-UQ', name: '(UQ) Mid Crystal' },
   { code: 'MGDC-UQ', name: '(UQ) Mid Diamond' },
   { code: 'MGAC-LG', name: '(LG) Mid Agate' },
   { code: 'MGCC-LG', name: '(LG) Mid Crystal' },
   { code: 'MGDC-LG', name: '(LG) Mid Diamond' },
-  { code: 'HGAC-EP', name: '(EP) High Agate' },
-  { code: 'HGCC-EP', name: '(EP) High Crystal' },
-  { code: 'HGDC-EP', name: '(EP) High Diamond' },
+  { code: 'PA-RA', name: 'Polished Agate' },
+  { code: 'PAL-RA', name: 'Polished Alteum' },
+  { code: 'OD-RA', name: 'Ordinary Diamond' },  
+  { code: 'PD-RA', name: 'Polished Diamond' },
+  { code: 'EOL-EP', name: 'Essence of Life' },
+  { code: 'CB-EP', name: 'Card Box' },
+  { code: 'FG-RA', name: 'Final Gold' },
 ] as const;
 
 export function AdditionalItemsHydrator() {

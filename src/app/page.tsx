@@ -372,7 +372,7 @@ export default function Home() {
                 ) : (
                   <tr>
                     <td
-                      colSpan={8}
+                      colSpan={9}
                       className="border px-2 py-1 text-center min-h-full"
                     >
                       No rows
