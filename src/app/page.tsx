@@ -6,6 +6,7 @@ import { farmData, goldRate as defaultGoldRate, invaderData } from '@/lib/data';
 import { getDecimalOrNumber, getReadableDateString } from '@/lib/utils';
 import { useDnFarmStore } from '@/store/dnfarm.store';
 import { useState } from 'react';
+import type { additionalItems } from '@/lib/data';
 
 type Dungeon =
   | 'Riverwort Village Ruins'
@@ -13,6 +14,17 @@ type Dungeon =
   | 'Ancient Library'
   | 'East Ancient Armory'
   | 'West Ancient Armory';
+
+type AdditionalName = (typeof additionalItems)[number]['name'];
+type InvaderName = 'Gawyn' | 'Kanna';
+
+type FinalData = {
+  totalGoldEarned: number;
+  totalTimeSpent: number;
+  rowsCount: number;
+  totalInvaderCounts: Record<InvaderName, number>;
+  totalAdditionalCounts: Record<AdditionalName, number>;
+};
 
 export default function Home() {
   const startAt = useDnFarmStore((s) => s.startAt);
@@ -26,6 +38,7 @@ export default function Home() {
   const [isReset, setIsReset] = useState(false);
   const [isRemove, setIsRemove] = useState(false);
   const [openDetailData, setOpenDetailData] = useState(false);
+  const [openDetailAllData, setOpenDetailAllData] = useState(false);
 
   const setDungeon = useDnFarmStore((s) => s.setDungeon);
   const addRow = useDnFarmStore((s) => s.addRow);
@@ -74,6 +87,34 @@ export default function Home() {
       second: '2-digit',
       hour12: false,
     });
+  };
+
+  const calculateFinalData = (data: typeof rows): FinalData => {
+    const finalData: FinalData = {
+      rowsCount: data.length,
+      totalGoldEarned: data.reduce((sum, row) => sum + row.totalGold, 0),
+      totalTimeSpent: data.reduce((sum, row) => sum + row.totalMinute, 0),
+      totalInvaderCounts: data.reduce((acc, row) => {
+        if (row.details) {
+          for (const [name, count] of Object.entries(row.details.invaderData)) {
+            acc[name as InvaderName] = (acc[name as InvaderName] || 0) + count;
+          }
+        }
+        return acc;
+      }, {} as Record<InvaderName, number>),
+      totalAdditionalCounts: data.reduce((acc, row) => {
+        if (row.details) {
+          for (const [name, count] of Object.entries(
+            row.details.additionalItemsData
+          )) {
+            acc[name as AdditionalName] =
+              (acc[name as AdditionalName] || 0) + count;
+          }
+        }
+        return acc;
+      }, {} as Record<AdditionalName, number>),
+    };
+    return finalData;
   };
 
   return (
@@ -139,6 +180,38 @@ export default function Home() {
               >
                 Yes, remove latest row
               </button>
+            </div>
+          </Modal>
+          <button
+            type="button"
+            onClick={() => setOpenDetailAllData(true)}
+            className={`${
+              !rows.length
+                ? 'opacity-50 cursor-not-allowed'
+                : 'cursor-pointer hover:text-blue-600'
+            } `}
+            disabled={!rows.length}
+          >
+            View Details
+          </button>
+          <Modal
+            open={openDetailAllData}
+            onClose={() => setOpenDetailAllData(false)}
+          >
+            <div className="text-background w-100 max-h-160 ">
+              <h2 className="font-bold text-xl">All Rows Detail Content</h2>
+              {rows.length ? (
+                <div>
+                  {calculateFinalData(rows).rowsCount} rows calculated.
+                  <pre className="max-h-140 overflow-auto bg-black text-foreground bg-opacity-20 p-2 rounded-md">
+                    {JSON.stringify(calculateFinalData(rows), null, 2)}
+                  </pre>
+                </div>
+              ) : (
+                <p className="text-sm text-muted-foreground">
+                  No rows available.
+                </p>
+              )}
             </div>
           </Modal>
         </div>
