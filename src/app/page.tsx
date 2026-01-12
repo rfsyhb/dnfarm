@@ -150,9 +150,10 @@ export default function Home() {
                 <tr>
                   {[
                     'No',
-                    'Base Minute',
-                    'Additional Gold',
-                    'Additional Minute',
+                    'Dungeon Name',
+                    'Card Box',
+                    'Gawyn',
+                    'Kanna',
                     'Total Gold',
                     'Total Minute',
                     'Details',
@@ -177,12 +178,17 @@ export default function Home() {
                       }`}
                     >
                       <td className="border px-2 py-1">{row.no}</td>
-                      <td className="border px-2 py-1">{row.menit}</td>
                       <td className="border px-2 py-1">
-                        {getDecimalOrNumber(row.additionalGold, 2)}
+                        {row.details?.dungeonName ?? 'Not Available'}
                       </td>
                       <td className="border px-2 py-1">
-                        {getDecimalOrNumber(row.additionalMinute, 2)}
+                        {row.details?.additionalItemsData['Card Box'] ?? 0}
+                      </td>
+                      <td className="border px-2 py-1">
+                        {row.details?.invaderData['Gawyn'] ?? 0}
+                      </td>
+                      <td className="border px-2 py-1">
+                        {row.details?.invaderData['Kanna'] ?? 0}
                       </td>
                       <td className="border px-2 py-1">
                         {getDecimalOrNumber(row.totalGold, 2)}
@@ -406,6 +412,18 @@ export default function Home() {
                                   }
                                   ${
                                     item.name.includes('EP')
+                                      ? 'text-yellow-400'
+                                      : ''
+                                  }
+                                  ${
+                                    item.name.includes('Polished Diamond') ||
+                                    item.name.includes('Ordinary Diamond') ||
+                                    item.name.includes('Essence of Life')
+                                      ? 'text-yellow-600'
+                                      : ''
+                                  }
+                                  ${
+                                    item.name.includes('Card Box')
                                       ? 'text-yellow-400'
                                       : ''
                                   }
