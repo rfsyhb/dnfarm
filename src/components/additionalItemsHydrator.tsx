@@ -15,12 +15,12 @@ const config = [
   { code: 'MGAC-LG', name: '(LG) Mid Agate' },
   { code: 'MGCC-LG', name: '(LG) Mid Crystal' },
   { code: 'MGDC-LG', name: '(LG) Mid Diamond' },
-  { code: 'PA-RA', name: 'Polished Agate' },
-  { code: 'PAL-RA', name: 'Polished Alteum' },
+  { code: 'EOL-EP', name: 'Essence of Life' },
   { code: 'OD-RA', name: 'Ordinary Diamond' },  
   { code: 'PD-RA', name: 'Polished Diamond' },
-  { code: 'EOL-EP', name: 'Essence of Life' },
   { code: 'CB-EP', name: 'Card Box' },
+  { code: 'PA-RA', name: 'Polished Agate' },
+  { code: 'PAL-RA', name: 'Polished Alteum' },
   { code: 'FG-RA', name: 'Final Gold' },
 ] as const;
 

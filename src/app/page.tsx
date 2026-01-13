@@ -252,7 +252,13 @@ export default function Home() {
                     >
                       <td className="border px-2 py-1">{row.no}</td>
                       <td className="border px-2 py-1">
-                        {row.details?.dungeonName ?? 'Not Available'}
+                        {!row.details?.dungeonName && !startAt
+                          ? 'Start first...'
+                          : !row.details?.dungeonName && !endAt
+                          ? 'set end time!'
+                          : !row.details?.dungeonName && startAt && endAt
+                          ? 'unsubmitted'
+                          : row.details?.dungeonName}
                       </td>
                       <td className="border px-2 py-1">
                         {row.details?.additionalItemsData['Card Box'] ?? 0}
@@ -344,7 +350,9 @@ export default function Home() {
                                             className="border-t border-border"
                                           >
                                             <td className="px-3 py-1">
-                                              {name}
+                                              {name === 'Final Gold'
+                                                ? 'Raw Gold'
+                                                : name}
                                             </td>
                                             <td className="px-3 py-1 text-right">
                                               {count}
@@ -415,6 +423,8 @@ export default function Home() {
                             min={0}
                             className="w-full text-center"
                             disabled={rows.length === 0 || !isDungeonSelected}
+                            onWheel={(e) => e.currentTarget.blur()}
+                            onFocus={(e) => e.currentTarget.select()}
                             placeholder={
                               rows.length === 0 ? 'n/a' : 'not profitable'
                             }
@@ -518,6 +528,8 @@ export default function Home() {
                                 min={0}
                                 className="w-full text-center"
                                 disabled={rows.length === 0}
+                                onWheel={(e) => e.currentTarget.blur()}
+                                onFocus={(e) => e.currentTarget.select()}
                                 placeholder={
                                   rows.length === 0 ? 'n/a' : 'not profitable'
                                 }
