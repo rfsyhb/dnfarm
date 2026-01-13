@@ -235,7 +235,7 @@ export const useDnFarmStore = create<DnFarmState>()(
         }),
     }),
     {
-      name: 'dnfarm:v2',
+      name: 'dnfarm:v3',
       storage: createJSONStorage(() => localStorage),
 
       partialize: (s) => ({

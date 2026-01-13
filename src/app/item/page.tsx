@@ -1,12 +1,17 @@
 'use client';
 
+import { Modal } from '@/components/modal';
 import { useItemData, useUpdatePrice } from '@/features/items/hooks';
 import type { UpdatePricePayload } from '@/lib/types';
 import { getReadableDateString, sortItemsByRarity } from '@/lib/utils';
-import Link from 'next/link';
 import { useState } from 'react';
+import { HistoryModalContent } from './_component/ItemHistoryModal';
 
 export default function ItemPage() {
+  const [selectedItemData, setSelectedItemData] = useState<{
+    itemCode: string;
+    rarity: string;
+  } | null>(null);
   const { mutate: updatePrice } = useUpdatePrice();
   const { data, isLoading, isError } = useItemData();
   const [copiedItemCode, setCopiedItemCode] = useState<string | null>(null);
@@ -96,6 +101,8 @@ export default function ItemPage() {
     setCopiedItemCode(itemCode);
   };
 
+  const closeModal = () => setSelectedItemData(null);
+
   return (
     <div className="min-h-screen w-full flex flex-col items-center justify-center p-8">
       <div className="flex flex-row items-center gap-2 w-full p-1">
@@ -180,14 +187,18 @@ export default function ItemPage() {
                       : 'n/a'}
                   </td>
                   <td className="px-2 py-1 text-center">
-                    <Link href={`/item/history/${item.item_code}`}>
-                      <button
-                        type="button"
-                        className="cursor-pointer w-full border px-2 hover:bg-foreground/20 rounded-xl"
-                      >
-                        History
-                      </button>
-                    </Link>
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setSelectedItemData({
+                          itemCode: item.item_code,
+                          rarity: item.rarity,
+                        })
+                      }
+                      className="cursor-pointer w-full border px-2 hover:bg-foreground/20 rounded-xl"
+                    >
+                      History
+                    </button>
                   </td>
                 </tr>
               );
@@ -195,6 +206,19 @@ export default function ItemPage() {
           </tbody>
         </table>
       </div>
+      {/* MODAL */}
+      <Modal
+        open={selectedItemData !== null}
+        onClose={closeModal}
+      >
+        {selectedItemData && (
+          <HistoryModalContent
+            itemCode={selectedItemData.itemCode}
+            rarity={selectedItemData.rarity}
+          />
+        )}
+      </Modal>
+
       <form
         onSubmit={onSubmitForm}
         className="w-full px-2 py-2 flex gap-2"
