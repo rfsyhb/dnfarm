@@ -17,6 +17,14 @@ export default function Navbar() {
         Home
       </Link>
       <Link
+        href="/weekly"
+        className={`hover:underline${
+          currentPath === '/weekly' ? ' underline' : ''
+        }`}
+      >
+        Weekly
+      </Link>
+      <Link
         href="/item"
         className={`hover:underline${
           currentPath === '/item' ? ' underline' : ''

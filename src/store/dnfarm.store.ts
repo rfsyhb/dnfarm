@@ -23,6 +23,14 @@ type Row = {
   details?: CalculationDetails;
 };
 
+type WeeklyTimeRow = {
+  no: number;
+  startAt: string | null;
+  endAt: string | null;
+  totalMinute: number;
+  createdAt: string;
+};
+
 type Dungeon =
   | 'Riverwort Village Ruins'
   | 'Dragon Follower Base'
@@ -51,6 +59,7 @@ const emptyAdditionals = () =>
 
 type DnFarmState = {
   rows: Row[];
+  weeklyTimeRows: WeeklyTimeRow[];
   selectedDungeon?: Dungeon;
   invaderCounts: Record<InvaderName, number>;
 
@@ -59,20 +68,28 @@ type DnFarmState = {
 
   startAt: string | null;
   endAt: string | null;
+  weeklyStartAt: string | null;
+  weeklyEndAt: string | null;
 
   setDungeon: (d?: Dungeon) => void;
 
   addRow: () => void;
   removeRow: () => void;
 
+  addWeeklyTimeRow: () => void;
+  removeWeeklyTimeRow: () => void;
+
   setStartAt: (start: string | null) => void;
   setEndAt: (end: string | null) => void;
+  setWeeklyStartAt: (start: string | null) => void;
+  setWeeklyEndAt: (end: string | null) => void;
 
   setInvaderCount: (name: InvaderName, value: number) => void;
 
   setAdditionalItems: (items: AdditionalItem[]) => void;
   setAdditionalCount: (name: AdditionalName, value: number) => void;
 
+  submitLatestWeeklyTimeRow: () => void;
   submitLatestRow: () => void;
 
   resetAll: () => void;
@@ -82,6 +99,7 @@ export const useDnFarmStore = create<DnFarmState>()(
   persist(
     (set, get) => ({
       rows: [],
+      weeklyTimeRows: [],
       selectedDungeon: undefined,
       invaderCounts: emptyInvaders(),
       additionalCounts: emptyAdditionals(),
@@ -91,6 +109,8 @@ export const useDnFarmStore = create<DnFarmState>()(
       })),
       startAt: null,
       endAt: null,
+      weeklyStartAt: null,
+      weeklyEndAt: null,
 
       setDungeon: (d) => set({ selectedDungeon: d }),
 
@@ -117,6 +137,26 @@ export const useDnFarmStore = create<DnFarmState>()(
         set({ rows: rows.slice(0, -1) });
       },
 
+      addWeeklyTimeRow: () => {
+        const { weeklyTimeRows } = get();
+
+        const newWeeklyTimeRow: WeeklyTimeRow = {
+          no: weeklyTimeRows.length + 1,
+          startAt: null,
+          endAt: null,
+          totalMinute: 0,
+          createdAt: new Date().toISOString(),
+        };
+
+        set({ weeklyTimeRows: [...weeklyTimeRows, newWeeklyTimeRow] });
+      },
+
+      removeWeeklyTimeRow: () => {
+        const { weeklyTimeRows } = get();
+        if (!weeklyTimeRows.length) return;
+        set({ weeklyTimeRows: weeklyTimeRows.slice(0, -1) });
+      },
+
       setStartAt: (start) => {
         if (start === null) {
           set({
@@ -127,6 +167,8 @@ export const useDnFarmStore = create<DnFarmState>()(
         set({ startAt: start });
       },
       setEndAt: (end) => set({ endAt: end }),
+      setWeeklyStartAt: (start) => set({ weeklyStartAt: start }),
+      setWeeklyEndAt: (end) => set({ weeklyEndAt: end }),
 
       setInvaderCount: (name, value) =>
         set((s) => ({
@@ -153,7 +195,7 @@ export const useDnFarmStore = create<DnFarmState>()(
         const selectedFarmData = farmData[selectedDungeon];
 
         const additionalPriceByName = new Map<AdditionalName, number>(
-          get().additionalItems.map((i) => [i.name, i.price])
+          get().additionalItems.map((i) => [i.name, i.price]),
         );
 
         const additionalGold = (
@@ -172,7 +214,9 @@ export const useDnFarmStore = create<DnFarmState>()(
         }, 0);
 
         // Additional gold from board quest
-        const finalAdditionalGold = isNotUsingBaseGold ? additionalGold + (0.6 * 3) : additionalGold;
+        const finalAdditionalGold = isNotUsingBaseGold
+          ? additionalGold + 0.6 * 3
+          : additionalGold;
 
         const additionalMinute = !get().startAt
           ? Object.entries(invaderCounts).reduce((sum, [name, count]) => {
@@ -191,13 +235,13 @@ export const useDnFarmStore = create<DnFarmState>()(
           Object.entries(invaderCounts).map(([name, count]) => [
             name,
             Number(count),
-          ])
+          ]),
         ) as Record<InvaderName, number>;
         const additionalItemsDataRecord = Object.fromEntries(
           Object.entries(additionalCounts).map(([name, count]) => [
             name,
             Number(count),
-          ])
+          ]),
         ) as Record<AdditionalName, number>;
         const details: CalculationDetails = {
           invaderData: invaderDataRecord,
@@ -227,6 +271,30 @@ export const useDnFarmStore = create<DnFarmState>()(
         });
       },
 
+      submitLatestWeeklyTimeRow: () => {
+        const { weeklyTimeRows, weeklyStartAt, weeklyEndAt } = get();
+        const latestRow = weeklyTimeRows[weeklyTimeRows.length - 1];
+        if (!latestRow) return;
+
+        const totalMinute =
+          getMsDurationString(weeklyStartAt ?? '', weeklyEndAt ?? '') / 60000;
+
+        // update the latest row with end time and total minute
+        const newWeeklyTimeRows = [...weeklyTimeRows]; // create a copy of the array
+        newWeeklyTimeRows[newWeeklyTimeRows.length - 1] = {
+          ...latestRow, // keep existing no and createdAt
+          startAt: weeklyStartAt,
+          endAt: weeklyEndAt,
+          totalMinute,
+        };
+
+        set({
+          weeklyTimeRows: newWeeklyTimeRows,
+          weeklyStartAt: null,
+          weeklyEndAt: null,
+        });
+      },
+
       resetAll: () =>
         set({
           rows: [],
@@ -244,6 +312,6 @@ export const useDnFarmStore = create<DnFarmState>()(
         invaderCounts: s.invaderCounts,
         additionalCounts: s.additionalCounts,
       }),
-    }
-  )
+    },
+  ),
 );

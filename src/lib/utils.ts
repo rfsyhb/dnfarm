@@ -29,6 +29,16 @@ export const getReadableDateString = (isoString: string) => {
   });
 };
 
+export const getDateHoursMinutesString = (isoString: string) => {
+  const date = new Date(isoString);
+  return date.toLocaleTimeString([], {
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+    hour12: false,
+  });
+};
+
 export const getMsDurationString = (startIso: string, endIso: string) => {
   const start = new Date(startIso);
   const end = new Date(endIso);
@@ -52,7 +62,7 @@ export const calculateStampPrice = (item: ItemData, lavishPrice: number) => {
 
 export const calculateAfterTaxAndStamp = (
   item: ItemPriceHistory,
-  stampPrice: number
+  stampPrice: number,
 ) => {
   const taxRate = 0.1; // 10% tax trading house
   const afterTaxPrice = item.th_price * (1 - taxRate);
@@ -80,4 +90,4 @@ export const sortItemsByRarity = (items: ItemDataToSort[]) => {
 
 export const getDecimalOrNumber = (value: number, decimal = 3) => {
   return Number.isInteger(value) ? value : Number(value.toFixed(decimal));
-}
+};
