@@ -44,6 +44,15 @@ type AdditionalItem = {
   name: (typeof additionalItems)[number]['name'];
   price: number;
 };
+type WeeklyAdditionalItem = {
+  name: string;
+  quantity: number;
+};
+
+type WeeklyItemRow = {
+  no: number;
+  items: WeeklyAdditionalItem[];
+};
 
 const emptyInvaders = () =>
   Object.fromEntries(invaderData.map((i) => [i.name, 0])) as Record<
@@ -60,6 +69,7 @@ const emptyAdditionals = () =>
 type DnFarmState = {
   rows: Row[];
   weeklyTimeRows: WeeklyTimeRow[];
+  weeklyItemRows: WeeklyItemRow[];
   selectedDungeon?: Dungeon;
   invaderCounts: Record<InvaderName, number>;
 
@@ -77,7 +87,9 @@ type DnFarmState = {
   removeRow: () => void;
 
   addWeeklyTimeRow: () => void;
-  removeWeeklyTimeRow: () => void;
+  removeLatestWeeklyTimeRow: () => void;
+  addWeeklyItemRow: (defaultItemData: WeeklyAdditionalItem[]) => void;
+  removeLatestWeeklyItemRow: () => void;
 
   setStartAt: (start: string | null) => void;
   setEndAt: (end: string | null) => void;
@@ -90,6 +102,7 @@ type DnFarmState = {
   setAdditionalCount: (name: AdditionalName, value: number) => void;
 
   submitLatestWeeklyTimeRow: () => void;
+  submitLatestWeeklyItemRow: (itemData: WeeklyAdditionalItem[]) => void;
   submitLatestRow: () => void;
 
   resetAll: () => void;
@@ -100,6 +113,7 @@ export const useDnFarmStore = create<DnFarmState>()(
     (set, get) => ({
       rows: [],
       weeklyTimeRows: [],
+      weeklyItemRows: [],
       selectedDungeon: undefined,
       invaderCounts: emptyInvaders(),
       additionalCounts: emptyAdditionals(),
@@ -151,10 +165,26 @@ export const useDnFarmStore = create<DnFarmState>()(
         set({ weeklyTimeRows: [...weeklyTimeRows, newWeeklyTimeRow] });
       },
 
-      removeWeeklyTimeRow: () => {
+      addWeeklyItemRow: (defaultItemData) => {
+        const { weeklyItemRows } = get();
+
+        const newWeeklyItemRow: WeeklyItemRow = {
+          no: weeklyItemRows.length + 1,
+          items: defaultItemData,
+        };
+        set({ weeklyItemRows: [...weeklyItemRows, newWeeklyItemRow] });
+      },
+
+      removeLatestWeeklyTimeRow: () => {
         const { weeklyTimeRows } = get();
         if (!weeklyTimeRows.length) return;
         set({ weeklyTimeRows: weeklyTimeRows.slice(0, -1) });
+      },
+
+      removeLatestWeeklyItemRow: () => {
+        const { weeklyItemRows } = get();
+        if (!weeklyItemRows.length) return;
+        set({ weeklyItemRows: weeklyItemRows.slice(0, -1) })
       },
 
       setStartAt: (start) => {
@@ -293,6 +323,19 @@ export const useDnFarmStore = create<DnFarmState>()(
           weeklyStartAt: null,
           weeklyEndAt: null,
         });
+      },
+
+      submitLatestWeeklyItemRow: (itemData: WeeklyAdditionalItem[]) => {
+        const { weeklyItemRows } = get();
+        const latestRow = weeklyItemRows[weeklyItemRows.length - 1];
+        if (!latestRow) return;
+
+        const newWeeklyItemRows = [...weeklyItemRows];
+        newWeeklyItemRows[newWeeklyItemRows.length - 1] = {
+          ...latestRow,
+          items: itemData,
+        };
+        set({ weeklyItemRows: newWeeklyItemRows });
       },
 
       resetAll: () =>
