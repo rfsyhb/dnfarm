@@ -31,6 +31,17 @@ type WeeklyTimeRow = {
   createdAt: string;
 };
 
+type WeeklyAdditionalItemWithGold = WeeklyAdditionalItem & {
+  totalGold: number;
+};
+type WeeklySummaryRow = {
+  no: number;
+  items: WeeklyAdditionalItemWithGold[];
+  totalMinute: number;
+  totalGold: number;
+  createdAt: string;
+};
+
 type Dungeon =
   | 'Riverwort Village Ruins'
   | 'Dragon Follower Base'
@@ -71,6 +82,7 @@ type DnFarmState = {
   rows: Row[];
   weeklyTimeRows: WeeklyTimeRow[];
   weeklyItemRows: WeeklyItemRow[];
+  weeklySummaryRows: WeeklySummaryRow[];
   selectedDungeon?: Dungeon;
   invaderCounts: Record<InvaderName, number>;
 
@@ -105,6 +117,7 @@ type DnFarmState = {
   submitLatestWeeklyTimeRow: () => void;
   submitLatestWeeklyItemRow: (itemData: WeeklyAdditionalItem[]) => void;
   submitLatestRow: () => void;
+  calculateLatestWeeklySummary: () => void;
 
   resetAll: () => void;
 };
@@ -115,6 +128,7 @@ export const useDnFarmStore = create<DnFarmState>()(
       rows: [],
       weeklyTimeRows: [],
       weeklyItemRows: [],
+      weeklySummaryRows: [],
       selectedDungeon: undefined,
       invaderCounts: emptyInvaders(),
       additionalCounts: emptyAdditionals(),
@@ -186,7 +200,7 @@ export const useDnFarmStore = create<DnFarmState>()(
       removeLatestWeeklyItemRow: () => {
         const { weeklyItemRows } = get();
         if (!weeklyItemRows.length) return;
-        set({ weeklyItemRows: weeklyItemRows.slice(0, -1) })
+        set({ weeklyItemRows: weeklyItemRows.slice(0, -1) });
       },
 
       setStartAt: (start) => {
@@ -339,6 +353,66 @@ export const useDnFarmStore = create<DnFarmState>()(
           isSubmitted: true,
         };
         set({ weeklyItemRows: newWeeklyItemRows });
+      },
+
+      calculateLatestWeeklySummary: () => {
+        const {
+          weeklySummaryRows,
+          weeklyItemRows,
+          weeklyTimeRows,
+          additionalItems,
+        } = get();
+        const latestItemRow = weeklyItemRows[weeklyItemRows.length - 1];
+        const latestTimeRow = weeklyTimeRows[weeklyTimeRows.length - 1];
+        if (!latestItemRow || !latestTimeRow) return; // need both time and item data to calculate summary
+
+        // Get Price map for additional items
+        const additionalPriceByName = new Map<AdditionalName, number>(
+          additionalItems.map((i) => [i.name, i.price]),
+        );
+
+        // Calculate total minute
+        const totalMinute = weeklyTimeRows.reduce(
+          (sum, row) => sum + row.totalMinute,
+          0,
+        );
+
+        // Construct final item list
+        const itemsWithGold: WeeklyAdditionalItemWithGold[] =
+          latestItemRow.items.map((item) => ({
+            name: item.name,
+            quantity: 0,
+            totalGold: 0,
+          }));
+
+        // Kumpulkan semua item x dari weekly data
+        const finalItemData = itemsWithGold.map((item) => {
+          const totalQuantity = weeklyItemRows.reduce((sum, row) => {
+            const foundItem = row.items.find((i) => i.name === item.name);
+            return sum + (foundItem ? foundItem.quantity : 0);
+          }, 0);
+          return {
+            ...item,
+            quantity: totalQuantity,
+            totalGold:
+              totalQuantity *
+              (additionalPriceByName.get(item.name as AdditionalName) || 0),
+          };
+        });
+
+        const totalGold = finalItemData.reduce(
+          (sum, item) => sum + item.totalGold,
+          0,
+        );
+
+        const newSummaryRow: WeeklySummaryRow = {
+          no: weeklySummaryRows.length + 1,
+          items: finalItemData,
+          totalMinute,
+          totalGold,
+          createdAt: new Date().toISOString(),
+        };
+        set({ weeklySummaryRows: [...weeklySummaryRows, newSummaryRow] });
       },
 
       resetAll: () =>

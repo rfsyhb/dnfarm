@@ -26,11 +26,13 @@ export default function WeeklyPage() {
     value: false,
   });
   const [displayTable, setDisplayTable] = useState<'Main' | 'Summary'>('Main');
+  const [openDetailItems, setOpenDetailItems] = useState<boolean>(false);
   const startAt = useDnFarmStore((s) => s.weeklyStartAt);
   const endAt = useDnFarmStore((s) => s.weeklyEndAt);
-  const { data: goldData, isLoading } = useGoldData();
+  const { isLoading } = useGoldData();
   const weeklyTimeRows = useDnFarmStore((s) => s.weeklyTimeRows);
   const weeklyItemRows = useDnFarmStore((s) => s.weeklyItemRows);
+  const weeklySummaryRows = useDnFarmStore((s) => s.weeklySummaryRows);
   const isValidToAddTimeRow =
     startAt === null &&
     endAt === null &&
@@ -55,6 +57,9 @@ export default function WeeklyPage() {
     (s) => s.submitLatestWeeklyItemRow,
   );
   const addWeeklyItemRow = useDnFarmStore((s) => s.addWeeklyItemRow);
+  const calculateSummary = useDnFarmStore(
+    (s) => s.calculateLatestWeeklySummary,
+  );
 
   if (isLoading) {
     return <div>Loading gold prices...</div>;
@@ -82,7 +87,7 @@ export default function WeeklyPage() {
   };
 
   return (
-    <div className="border min-h-screen w-full flex flex-col items-center justify-center p-8 gap-2">
+    <div className="min-h-screen w-full flex flex-col items-center justify-center p-8 gap-2">
       <AdditionalItemsHydrator />
       {/* header */}
       <div className="flex flex-row items-center gap-2 w-full">
@@ -456,6 +461,55 @@ export default function WeeklyPage() {
                     </div>
                   </div>
                 </form>
+                <section className="w-full flex justify-center gap-2 mt-10">
+                  <button
+                    type="button"
+                    className={`px-2 py-1 border rounded-md bg-yellow-900 text-white ${
+                      !weeklyItemRows.length && !weeklySummaryRows.length
+                        ? 'opacity-50 cursor-not-allowed'
+                        : 'cursor-pointer'
+                    }`}
+                    disabled={
+                      !weeklyItemRows.length && !weeklySummaryRows.length
+                    }
+                    onClick={calculateSummary}
+                  >
+                    Calculate Summary
+                  </button>
+                  <button
+                    type="button"
+                    className={`px-2 py-1 border rounded-md bg-red-900 text-white ${
+                      !weeklyItemRows.length && !weeklySummaryRows.length
+                        ? 'opacity-50 cursor-not-allowed'
+                        : 'cursor-pointer'
+                    }`}
+                    disabled={
+                      !weeklyItemRows.length && !weeklySummaryRows.length
+                    }
+                    onClick={() =>
+                      setIsRemove({ type: 'summary', value: true })
+                    }
+                  >
+                    Reset Weekly Data
+                  </button>
+                  <Modal
+                    open={isRemove.value && isRemove.type === 'summary'}
+                    onClose={() => setIsRemove({ type: '', value: false })}
+                  >
+                    <div className="text-background flex flex-row items-center gap-4">
+                      <p className="font-sans font-medium">Are you sure?</p>
+                      <button
+                        className="px-2 py-1 bg-red-700 rounded-md text-white cursor-pointer hover:bg-red-900"
+                        onClick={() => {
+                          removeLatestWeeklyItemRow();
+                          setIsRemove({ type: '', value: false });
+                        }}
+                      >
+                        Yes, remove weekly data
+                      </button>
+                    </div>
+                  </Modal>
+                </section>
               </div>
             </section>
             {/* Item Section */}
@@ -524,8 +578,84 @@ export default function WeeklyPage() {
         </div>
       )}
       {displayTable === 'Summary' && (
-        <div className='min-h-140 w-full'>
-          <p>Summary content goes here</p>
+        <div className="min-h-145 w-full">
+          {weeklySummaryRows.length ? (
+            <table className="w-full border-separate border-spacing-0 mt-4">
+              <thead>
+                <tr>
+                  <th className="sticky top-0 bg-background border px-2 py-1 z-10">
+                    No
+                  </th>
+                  <th className="sticky top-0 bg-background border px-2 py-1 z-10">
+                    Total Time (min)
+                  </th>
+                  <th className="sticky top-0 bg-background border px-2 py-1 z-10">
+                    Total Gold
+                  </th>
+                  <th className="sticky top-0 bg-background border px-2 py-1 z-10">
+                    Detail
+                  </th>
+                  <th className="sticky top-0 bg-background border px-2 py-1 z-10">
+                    Created At
+                  </th>
+                </tr>
+              </thead>
+              <tbody className="overflow-y-auto">
+                {weeklySummaryRows.map((row) => (
+                  <tr
+                    key={row.no}
+                    className="hover:bg-foreground/10"
+                  >
+                    <td className="px-2 py-1 text-center">{row.no}</td>
+                    <td className="px-2 py-1">
+                      {getDecimalOrNumber(row.totalMinute, 2)} min
+                    </td>
+                    <td className="px-2 py-1">
+                      {getDecimalOrNumber(row.totalGold, 2)} gold
+                    </td>
+                    <td className="px-2 py-1">
+                      <button
+                        className="hover:underline cursor-pointer"
+                        type="button"
+                        onClick={() => setOpenDetailItems(true)}
+                      >
+                        View Details
+                      </button>
+
+                      <Modal
+                        open={openDetailItems}
+                        onClose={() => setOpenDetailItems(false)}
+                      >
+                        <div className="text-background w-100 max-h-160 ">
+                          <h2 className="font-bold text-xl">
+                            Summary Item Detail
+                          </h2>
+                          {row.items.length ? (
+                            <div>
+                              <pre className="max-h-140 overflow-auto bg-black text-foreground bg-opacity-20 p-2 rounded-md">
+                                {JSON.stringify(row.items, null, 2)}
+                              </pre>
+                            </div>
+                          ) : (
+                            <p className="text-sm text-muted-foreground">
+                              No rows available.
+                            </p>
+                          )}
+                        </div>
+                      </Modal>
+                    </td>
+                    <td className="px-2 py-1">
+                      {getReadableDateString(row.createdAt)}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          ) : (
+            <div className="border px-2 py-1 text-center min-h-full mt-4">
+              No summary data available.
+            </div>
+          )}
         </div>
       )}
     </div>
