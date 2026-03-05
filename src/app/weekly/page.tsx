@@ -86,9 +86,6 @@ export default function WeeklyPage() {
       {/* header */}
       <div className="flex flex-col w-full">
         <h1 className="text-xl font-bold">Weekly Farming</h1>
-        <p className="text-sm">
-          Left side for time tracking and right side for item tracking.
-        </p>
         <div className="flex flex-row gap-2">
           <button
             type="button"
@@ -142,11 +139,11 @@ export default function WeeklyPage() {
               )
             }
             className={`${
-              !isValidToAddItemRow
+              !isValidToAddItemRow || weeklyItemRows.some((row) => row.isSubmitted === false)
                 ? 'opacity-50 cursor-not-allowed'
                 : 'cursor-pointer hover:text-green-600'
             } `}
-            disabled={!isValidToAddItemRow}
+            disabled={!isValidToAddItemRow || weeklyItemRows.some((row) => row.isSubmitted === false)}
           >
             + New Item Row
           </button>
@@ -501,6 +498,9 @@ export default function WeeklyPage() {
           </div>
         </section>
       </main>
+      <div>
+        <h2>Summary</h2>
+      </div>
     </div>
   );
 }

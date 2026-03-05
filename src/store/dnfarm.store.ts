@@ -52,6 +52,7 @@ type WeeklyAdditionalItem = {
 type WeeklyItemRow = {
   no: number;
   items: WeeklyAdditionalItem[];
+  isSubmitted: boolean;
 };
 
 const emptyInvaders = () =>
@@ -171,6 +172,7 @@ export const useDnFarmStore = create<DnFarmState>()(
         const newWeeklyItemRow: WeeklyItemRow = {
           no: weeklyItemRows.length + 1,
           items: defaultItemData,
+          isSubmitted: false,
         };
         set({ weeklyItemRows: [...weeklyItemRows, newWeeklyItemRow] });
       },
@@ -334,6 +336,7 @@ export const useDnFarmStore = create<DnFarmState>()(
         newWeeklyItemRows[newWeeklyItemRows.length - 1] = {
           ...latestRow,
           items: itemData,
+          isSubmitted: true,
         };
         set({ weeklyItemRows: newWeeklyItemRows });
       },
