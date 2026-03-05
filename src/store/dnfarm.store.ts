@@ -103,6 +103,7 @@ type DnFarmState = {
   removeLatestWeeklyTimeRow: () => void;
   addWeeklyItemRow: (defaultItemData: WeeklyAdditionalItem[]) => void;
   removeLatestWeeklyItemRow: () => void;
+  removeLatestWeeklySummaryRow: () => void;
 
   setStartAt: (start: string | null) => void;
   setEndAt: (end: string | null) => void;
@@ -120,6 +121,7 @@ type DnFarmState = {
   calculateLatestWeeklySummary: () => void;
 
   resetAll: () => void;
+  resetWeekly: () => void;
 };
 
 export const useDnFarmStore = create<DnFarmState>()(
@@ -201,6 +203,12 @@ export const useDnFarmStore = create<DnFarmState>()(
         const { weeklyItemRows } = get();
         if (!weeklyItemRows.length) return;
         set({ weeklyItemRows: weeklyItemRows.slice(0, -1) });
+      },
+
+      removeLatestWeeklySummaryRow: () => {
+        const { weeklySummaryRows } = get();
+        if (!weeklySummaryRows.length) return;
+        set({ weeklySummaryRows: weeklySummaryRows.slice(0, -1) });
       },
 
       setStartAt: (start) => {
@@ -421,16 +429,29 @@ export const useDnFarmStore = create<DnFarmState>()(
           invaderCounts: emptyInvaders(),
           additionalCounts: emptyAdditionals(),
         }),
+      
+      resetWeekly: () => 
+        set({
+          weeklyTimeRows: [],
+          weeklyItemRows: []
+        })
     }),
     {
-      name: 'dnfarm:v3',
+      name: 'dnfarm:v4',
       storage: createJSONStorage(() => localStorage),
 
       partialize: (s) => ({
         rows: s.rows,
+        weeklyTimeRows: s.weeklyTimeRows,
+        weeklyItemRows: s.weeklyItemRows,
+        weeklySummaryRows: s.weeklySummaryRows,
         selectedDungeon: s.selectedDungeon,
         invaderCounts: s.invaderCounts,
         additionalCounts: s.additionalCounts,
+        startAt: s.startAt,
+        endAt: s.endAt,
+        weeklyStartAt: s.weeklyStartAt,
+        weeklyEndAt: s.weeklyEndAt,
       }),
     },
   ),

@@ -21,7 +21,7 @@ const additionalItems = [
 ];
 
 export default function WeeklyPage() {
-  const [isRemove, setIsRemove] = useState({
+  const [openModal, setOpenModal] = useState({
     type: '',
     value: false,
   });
@@ -50,6 +50,9 @@ export default function WeeklyPage() {
   const removeLatestWeeklyItemRow = useDnFarmStore(
     (s) => s.removeLatestWeeklyItemRow,
   );
+  const removeLatestWeeklySummaryRow = useDnFarmStore(
+    (s) => s.removeLatestWeeklySummaryRow,
+  );
   const submitLatestWeeklyTimeRow = useDnFarmStore(
     (s) => s.submitLatestWeeklyTimeRow,
   );
@@ -60,6 +63,7 @@ export default function WeeklyPage() {
   const calculateSummary = useDnFarmStore(
     (s) => s.calculateLatestWeeklySummary,
   );
+  const resetWeekly = useDnFarmStore((s) => s.resetWeekly);
 
   if (isLoading) {
     return <div>Loading gold prices...</div>;
@@ -112,148 +116,98 @@ export default function WeeklyPage() {
       {/* Main table content */}
       {displayTable === 'Main' && (
         <div className="w-full h-full">
-          <div className="flex flex-row gap-2 w-full">
-            <button
-              type="button"
-              onClick={addWeeklyTimeRow}
-              className={`${
-                !isValidToAddTimeRow
-                  ? 'opacity-50 cursor-not-allowed'
-                  : 'cursor-pointer hover:text-green-600'
-              } `}
-              disabled={!isValidToAddTimeRow}
-            >
-              + New Time Row
-            </button>
-            <button
-              type="button"
-              onClick={() => setIsRemove({ type: 'time', value: true })}
-              className={`${
-                !weeklyTimeRows.length
-                  ? 'opacity-50 cursor-not-allowed'
-                  : 'cursor-pointer hover:text-red-600'
-              } `}
-              disabled={!weeklyTimeRows.length}
-            >
-              - Remove Latest Time Row
-            </button>
-            <Modal
-              open={isRemove.value && isRemove.type === 'time'}
-              onClose={() => setIsRemove({ type: '', value: false })}
-            >
-              <div className="text-background flex flex-row items-center gap-4">
-                <p className="font-sans font-medium">Are you sure?</p>
-                <button
-                  className="px-2 py-1 bg-red-700 rounded-md text-white cursor-pointer hover:bg-red-900"
-                  onClick={() => {
-                    removeLatestWeeklyTimeRow();
-                    setIsRemove({ type: '', value: false });
-                  }}
-                >
-                  Yes, remove latest row
-                </button>
-              </div>
-            </Modal>
-            <button
-              type="button"
-              onClick={() =>
-                addWeeklyItemRow(
-                  additionalItems.map((name) => ({
-                    name,
-                    quantity: 0,
-                  })),
-                )
-              }
-              className={`${
-                !isValidToAddItemRow ||
-                weeklyItemRows.some((row) => row.isSubmitted === false)
-                  ? 'opacity-50 cursor-not-allowed'
-                  : 'cursor-pointer hover:text-green-600'
-              } `}
-              disabled={
-                !isValidToAddItemRow ||
-                weeklyItemRows.some((row) => row.isSubmitted === false)
-              }
-            >
-              + New Item Row
-            </button>
-            <button
-              type="button"
-              onClick={() => setIsRemove({ type: 'item', value: true })}
-              className={`${
-                !weeklyItemRows.length
-                  ? 'opacity-50 cursor-not-allowed'
-                  : 'cursor-pointer hover:text-red-600'
-              } `}
-              disabled={!weeklyItemRows.length}
-            >
-              - Remove Latest Item Row
-            </button>
-            <Modal
-              open={isRemove.value && isRemove.type === 'item'}
-              onClose={() => setIsRemove({ type: '', value: false })}
-            >
-              <div className="text-background flex flex-row items-center gap-4">
-                <p className="font-sans font-medium">Are you sure?</p>
-                <button
-                  className="px-2 py-1 bg-red-700 rounded-md text-white cursor-pointer hover:bg-red-900"
-                  onClick={() => {
-                    removeLatestWeeklyItemRow();
-                    setIsRemove({ type: '', value: false });
-                  }}
-                >
-                  Yes, remove latest row
-                </button>
-              </div>
-            </Modal>
-          </div>
           <div className="flex w-full flex-row gap-1">
             {/* Main Section */}
             <section className="flex-1 flex flex-row gap-1">
               {/* Time Table */}
-              <div className="w-full h-140 overflow-y-auto border flex-1">
-                <table className="w-full border-separate border-spacing-0">
-                  <thead>
-                    <tr>
-                      <th className="sticky top-0 bg-background border px-2 py-1 z-10">
-                        No
-                      </th>
-                      <th className="sticky top-0 bg-background border px-2 py-1 z-10">
-                        Duration (min)
-                      </th>
-                      <th className="sticky top-0 bg-background border px-2 py-1 z-10">
-                        Created At
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody className="overflow-y-auto">
-                    {weeklyTimeRows.length ? (
-                      weeklyTimeRows.map((row) => (
-                        <tr
-                          key={row.no}
-                          className="hover:bg-foreground/10"
-                        >
-                          <td className="px-2 py-1 text-center">{row.no}</td>
-                          <td className="px-2 py-1">
-                            {getDecimalOrNumber(row.totalMinute, 2)} min
-                          </td>
-                          <td className="px-2 py-1">
-                            {getReadableDateString(row.createdAt)}
+              <div className="w-full flex-1">
+                <div className="h-140 overflow-y-auto border">
+                  <table className="w-full border-separate border-spacing-0">
+                    <thead>
+                      <tr>
+                        <th className="sticky top-0 bg-background border px-2 py-1 z-10">
+                          No
+                        </th>
+                        <th className="sticky top-0 bg-background border px-2 py-1 z-10">
+                          Duration (min)
+                        </th>
+                        <th className="sticky top-0 bg-background border px-2 py-1 z-10">
+                          Created At
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody className="overflow-y-auto">
+                      {weeklyTimeRows.length ? (
+                        weeklyTimeRows.map((row) => (
+                          <tr
+                            key={row.no}
+                            className={`${row.totalMinute === 0 && 'bg-yellow-900'} ${row.no === weeklyTimeRows.length && startAt !== null && 'bg-green-900'} hover:bg-foreground/10`}
+                          >
+                            <td className="px-2 py-1 text-center">{row.no}</td>
+                            <td className="px-2 py-1">
+                              {getDecimalOrNumber(row.totalMinute, 2)} min
+                            </td>
+                            <td className="px-2 py-1">
+                              {getReadableDateString(row.createdAt)}
+                            </td>
+                          </tr>
+                        ))
+                      ) : (
+                        <tr>
+                          <td
+                            colSpan={3}
+                            className="border px-2 py-1 text-center min-h-full"
+                          >
+                            No time rows available.
                           </td>
                         </tr>
-                      ))
-                    ) : (
-                      <tr>
-                        <td
-                          colSpan={3}
-                          className="border px-2 py-1 text-center min-h-full"
-                        >
-                          No time rows available.
-                        </td>
-                      </tr>
-                    )}
-                  </tbody>
-                </table>
+                      )}
+                    </tbody>
+                  </table>
+                </div>
+                <div className="flex flex-row gap-2">
+                  <button
+                    type="button"
+                    onClick={addWeeklyTimeRow}
+                    className={`${
+                      !isValidToAddTimeRow
+                        ? 'opacity-50 cursor-not-allowed'
+                        : 'cursor-pointer hover:text-green-600'
+                    } `}
+                    disabled={!isValidToAddTimeRow}
+                  >
+                    + New Time Row
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setOpenModal({ type: 'time', value: true })}
+                    className={`${
+                      !weeklyTimeRows.length
+                        ? 'opacity-50 cursor-not-allowed'
+                        : 'cursor-pointer hover:text-red-600'
+                    } `}
+                    disabled={!weeklyTimeRows.length}
+                  >
+                    - Remove Latest Time Row
+                  </button>
+                  <Modal
+                    open={openModal.value && openModal.type === 'time'}
+                    onClose={() => setOpenModal({ type: '', value: false })}
+                  >
+                    <div className="text-background flex flex-row items-center gap-4">
+                      <p className="font-sans font-medium">Are you sure?</p>
+                      <button
+                        className="px-2 py-1 bg-red-700 rounded-md text-white cursor-pointer hover:bg-red-900"
+                        onClick={() => {
+                          removeLatestWeeklyTimeRow();
+                          setOpenModal({ type: '', value: false });
+                        }}
+                      >
+                        Yes, remove latest row
+                      </button>
+                    </div>
+                  </Modal>
+                </div>
               </div>
               <div className="flex-1 flex flex-col">
                 <section aria-labelledby="Time">
@@ -472,10 +426,32 @@ export default function WeeklyPage() {
                     disabled={
                       !weeklyItemRows.length && !weeklySummaryRows.length
                     }
-                    onClick={calculateSummary}
+                    onClick={() =>
+                      setOpenModal({ type: 'calculate', value: true })
+                    }
                   >
                     Calculate Summary
                   </button>
+                  <Modal
+                    open={openModal.value && openModal.type === 'calculate'}
+                    onClose={() => setOpenModal({ type: '', value: false })}
+                  >
+                    <div className="text-background flex flex-row items-center gap-4">
+                      <p className="font-sans font-medium">
+                        Are you sure? This will calculate the summary based on
+                        the latest time and item rows, and it cannot be undone.
+                      </p>
+                      <button
+                        className="px-2 py-1 bg-green-700 rounded-md text-white cursor-pointer hover:bg-green-900"
+                        onClick={() => {
+                          calculateSummary();
+                          setOpenModal({ type: '', value: false });
+                        }}
+                      >
+                        Yes, calculate summary
+                      </button>
+                    </div>
+                  </Modal>
                   <button
                     type="button"
                     className={`px-2 py-1 border rounded-md bg-red-900 text-white ${
@@ -487,22 +463,22 @@ export default function WeeklyPage() {
                       !weeklyItemRows.length && !weeklySummaryRows.length
                     }
                     onClick={() =>
-                      setIsRemove({ type: 'summary', value: true })
+                      setOpenModal({ type: 'summary', value: true })
                     }
                   >
                     Reset Weekly Data
                   </button>
                   <Modal
-                    open={isRemove.value && isRemove.type === 'summary'}
-                    onClose={() => setIsRemove({ type: '', value: false })}
+                    open={openModal.value && openModal.type === 'summary'}
+                    onClose={() => setOpenModal({ type: '', value: false })}
                   >
                     <div className="text-background flex flex-row items-center gap-4">
                       <p className="font-sans font-medium">Are you sure?</p>
                       <button
                         className="px-2 py-1 bg-red-700 rounded-md text-white cursor-pointer hover:bg-red-900"
                         onClick={() => {
-                          removeLatestWeeklyItemRow();
-                          setIsRemove({ type: '', value: false });
+                          resetWeekly();
+                          setOpenModal({ type: '', value: false });
                         }}
                       >
                         Yes, remove weekly data
@@ -513,9 +489,9 @@ export default function WeeklyPage() {
               </div>
             </section>
             {/* Item Section */}
-            <section className="flex-1">
+            <section className="flex-1 w-full">
               {/* Time Table */}
-              <div className="w-full h-140 overflow-y-auto border flex-1">
+              <div className="h-140 overflow-y-auto border">
                 <table className="w-full border-separate border-spacing-0">
                   <thead>
                     <tr>
@@ -573,84 +549,171 @@ export default function WeeklyPage() {
                   </tbody>
                 </table>
               </div>
+              <div className="flex flex-row gap-2">
+                <button
+                  type="button"
+                  onClick={() =>
+                    addWeeklyItemRow(
+                      additionalItems.map((name) => ({
+                        name,
+                        quantity: 0,
+                      })),
+                    )
+                  }
+                  className={`${
+                    !isValidToAddItemRow ||
+                    weeklyItemRows.some((row) => row.isSubmitted === false)
+                      ? 'opacity-50 cursor-not-allowed'
+                      : 'cursor-pointer hover:text-green-600'
+                  } `}
+                  disabled={
+                    !isValidToAddItemRow ||
+                    weeklyItemRows.some((row) => row.isSubmitted === false)
+                  }
+                >
+                  + New Item Row
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setOpenModal({ type: 'item', value: true })}
+                  className={`${
+                    !weeklyItemRows.length
+                      ? 'opacity-50 cursor-not-allowed'
+                      : 'cursor-pointer hover:text-red-600'
+                  } `}
+                  disabled={!weeklyItemRows.length}
+                >
+                  - Remove Latest Item Row
+                </button>
+                <Modal
+                  open={openModal.value && openModal.type === 'item'}
+                  onClose={() => setOpenModal({ type: '', value: false })}
+                >
+                  <div className="text-background flex flex-row items-center gap-4">
+                    <p className="font-sans font-medium">Are you sure?</p>
+                    <button
+                      className="px-2 py-1 bg-red-700 rounded-md text-white cursor-pointer hover:bg-red-900"
+                      onClick={() => {
+                        removeLatestWeeklyItemRow();
+                        setOpenModal({ type: '', value: false });
+                      }}
+                    >
+                      Yes, remove latest row
+                    </button>
+                  </div>
+                </Modal>
+              </div>
             </section>
           </div>
         </div>
       )}
       {displayTable === 'Summary' && (
-        <div className="min-h-145 w-full">
+        <div className="min-h-145 w-full flex flex-col">
           {weeklySummaryRows.length ? (
-            <table className="w-full border-separate border-spacing-0 mt-4">
-              <thead>
-                <tr>
-                  <th className="sticky top-0 bg-background border px-2 py-1 z-10">
-                    No
-                  </th>
-                  <th className="sticky top-0 bg-background border px-2 py-1 z-10">
-                    Total Time (min)
-                  </th>
-                  <th className="sticky top-0 bg-background border px-2 py-1 z-10">
-                    Total Gold
-                  </th>
-                  <th className="sticky top-0 bg-background border px-2 py-1 z-10">
-                    Detail
-                  </th>
-                  <th className="sticky top-0 bg-background border px-2 py-1 z-10">
-                    Created At
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="overflow-y-auto">
-                {weeklySummaryRows.map((row) => (
-                  <tr
-                    key={row.no}
-                    className="hover:bg-foreground/10"
-                  >
-                    <td className="px-2 py-1 text-center">{row.no}</td>
-                    <td className="px-2 py-1">
-                      {getDecimalOrNumber(row.totalMinute, 2)} min
-                    </td>
-                    <td className="px-2 py-1">
-                      {getDecimalOrNumber(row.totalGold, 2)} gold
-                    </td>
-                    <td className="px-2 py-1">
-                      <button
-                        className="hover:underline cursor-pointer"
-                        type="button"
-                        onClick={() => setOpenDetailItems(true)}
-                      >
-                        View Details
-                      </button>
-
-                      <Modal
-                        open={openDetailItems}
-                        onClose={() => setOpenDetailItems(false)}
-                      >
-                        <div className="text-background w-100 max-h-160 ">
-                          <h2 className="font-bold text-xl">
-                            Summary Item Detail
-                          </h2>
-                          {row.items.length ? (
-                            <div>
-                              <pre className="max-h-140 overflow-auto bg-black text-foreground bg-opacity-20 p-2 rounded-md">
-                                {JSON.stringify(row.items, null, 2)}
-                              </pre>
-                            </div>
-                          ) : (
-                            <p className="text-sm text-muted-foreground">
-                              No rows available.
-                            </p>
-                          )}
-                        </div>
-                      </Modal>
-                    </td>
-                    <td className="px-2 py-1">
-                      {getReadableDateString(row.createdAt)}
-                    </td>
+            <>
+              <div className='flex'>
+                <button
+                  type="button"
+                  onClick={() => setOpenModal({ type: 'summary', value: true })}
+                  className={`${
+                    !weeklySummaryRows.length
+                      ? 'opacity-50 cursor-not-allowed'
+                      : 'cursor-pointer hover:text-red-600'
+                  } `}
+                  disabled={!weeklySummaryRows.length}
+                >
+                  - Remove Latest Summary Row
+                </button>
+                <Modal
+                  open={openModal.value && openModal.type === 'summary'}
+                  onClose={() => setOpenModal({ type: '', value: false })}
+                >
+                  <div className="text-background flex flex-row items-center gap-4">
+                    <p className="font-sans font-medium">Are you sure?</p>
+                    <button
+                      className="px-2 py-1 bg-red-700 rounded-md text-white cursor-pointer hover:bg-red-900"
+                      onClick={() => {
+                        removeLatestWeeklySummaryRow();
+                        setOpenModal({ type: '', value: false });
+                      }}
+                    >
+                      Yes, remove latest row
+                    </button>
+                  </div>
+                </Modal>
+              </div>
+              <table className="w-full border-separate border-spacing-0">
+                <thead>
+                  <tr>
+                    <th className="sticky top-0 bg-background border px-2 py-1 z-10">
+                      No
+                    </th>
+                    <th className="sticky top-0 bg-background border px-2 py-1 z-10">
+                      Total Time (min)
+                    </th>
+                    <th className="sticky top-0 bg-background border px-2 py-1 z-10">
+                      Total Gold
+                    </th>
+                    <th className="sticky top-0 bg-background border px-2 py-1 z-10">
+                      Detail
+                    </th>
+                    <th className="sticky top-0 bg-background border px-2 py-1 z-10">
+                      Created At
+                    </th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody className="overflow-y-auto">
+                  {weeklySummaryRows.map((row) => (
+                    <tr
+                      key={row.no}
+                      className="hover:bg-foreground/10"
+                    >
+                      <td className="px-2 py-1 text-center">{row.no}</td>
+                      <td className="px-2 py-1">
+                        {getDecimalOrNumber(row.totalMinute, 2)} min
+                      </td>
+                      <td className="px-2 py-1">
+                        {getDecimalOrNumber(row.totalGold, 2)} gold
+                      </td>
+                      <td className="px-2 py-1 text-center">
+                        <button
+                          className="hover:underline cursor-pointer"
+                          type="button"
+                          onClick={() => setOpenDetailItems(true)}
+                        >
+                          View Details
+                        </button>
+
+                        <Modal
+                          open={openDetailItems}
+                          onClose={() => setOpenDetailItems(false)}
+                        >
+                          <div className="text-background w-100 max-h-160 ">
+                            <h2 className="font-bold text-xl">
+                              Summary Item Detail
+                            </h2>
+                            {row.items.length ? (
+                              <div>
+                                <pre className="max-h-140 overflow-auto bg-black text-foreground bg-opacity-20 p-2 rounded-md">
+                                  {JSON.stringify(row.items, null, 2)}
+                                </pre>
+                              </div>
+                            ) : (
+                              <p className="text-sm text-muted-foreground">
+                                No rows available.
+                              </p>
+                            )}
+                          </div>
+                        </Modal>
+                      </td>
+                      <td className="px-2 py-1">
+                        {getReadableDateString(row.createdAt)}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </>
           ) : (
             <div className="border px-2 py-1 text-center min-h-full mt-4">
               No summary data available.
